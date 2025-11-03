@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz LACMÉ: Prêts pour la transition ?</title>
+    <!-- Chargement de Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chargement de la police Inter --><link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Définition de la police Inter comme police par défaut */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Style pour les options cochées (cases à cocher) */
+        .option-selected {
+            background-color: #DBEAFE !important; /* bg-blue-100 */
+            border-color: #3B82F6 !important; /* border-blue-500 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden">
+        
+        <!-- Écran d'Introduction --><div id="intro-screen" class="p-8 sm:p-12 text-center">
+            <!-- Logo LACMÉ --><img src="https://cheval-partenaire.fr/wp-content/uploads/2017/11/lacme_logo-1024x153.png" alt="Logo LACMÉ" class="mx-auto mb-6 max-h-20 sm:max-h-24 object-contain">
+            
+            <h1 class="text-3xl sm:text-4xl font-bold text-blue-800 mb-4">Quiz LACMÉ: Prêts pour la transition ?</h1>
+            <p class="text-lg text-gray-700 mb-4">
+                Bienvenue à vous cher collaborateur de LACMÉ ! 👋
+            </p>
+            <p class="text-lg text-gray-700 mb-6">
+                Ce quiz ludique est une excellente occasion de tester et d'enrichir vos connaissances sur les enjeux environnementaux qui nous concernent tous.
+            </p>
+            <p class="text-base text-gray-600 mb-6 font-medium">
+                Attention : pour certaines questions, plusieurs réponses peuvent être exactes. Cochez-les toutes pour marquer plus de points ! 😉
+            </p>
+
+            <!-- Formulaire d'Email -->
+            <form id="email-form" class="mt-8 text-left max-w-md mx-auto">
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Pour commencer et enregistrer votre score, veuillez entrer votre email :</label>
+                <input type="email" id="email-input" name="email" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="votre.email@lacme.com" required>
+                <p id="email-error" class="text-red-600 text-sm mt-1 hidden">Veuillez entrer une adresse email valide.</p>
+                
+                <button id="start-btn" type="submit" class="w-full mt-6 bg-blue-600 text-white font-bold py-3 px-12 rounded-lg text-lg hover:bg-blue-700 transition-all shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-300">
+                    Lançons le défi !
+                </button>
+            </form>
+
+        </div>
+
+        <!-- Écran du Quiz --><div id="quiz-screen" class="hidden p-8 sm:p-12">
+            <!-- Barre de progression --><div class="mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span id="question-counter" class="text-sm font-medium text-blue-700">Question 1 / 10</span>
+                    <span id="current-score" class="text-sm font-medium text-gray-600">Score: 0</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: 10%"></div>
+                </div>
+            </div>
+
+            <!-- Contenu de la question --><div class="mb-4 min-h-[100px]">
+                <p id="question-text" class="text-xl sm:text-2xl font-semibold text-gray-900">Chargement de la question...</p>
+                <p id="multi-select-hint" class="text-sm text-gray-500 italic mt-2 hidden">Plusieurs réponses sont possibles !</p>
+            </div>
+
+            <!-- Options de réponse --><div id="options-container" class="grid grid-cols-1 gap-4">
+                <!-- Les options seront injectées ici par JS --></div>
+
+            <!-- Bouton de validation (pour les cases à cocher) --><button id="validate-btn" class="hidden w-full mt-6 bg-green-600 text-white font-bold py-3 px-8 rounded-lg text-lg hover:bg-green-700 transition-all shadow-lg focus:outline-none focus:ring-4 focus:ring-green-300">
+                Valider mes réponses
+            </button>
+
+            <!-- Feedback --><div id="feedback-container" class="hidden mt-6 p-5 rounded-lg">
+                <div class="flex items-start">
+                    <div id="feedback-icon" class="flex-shrink-0">
+                        <!-- SVG (check ou X) injecté par JS --></div>
+                    <div class="ml-4">
+                        <h3 id="feedback-title" class="text-lg font-bold"></h3>
+                        <p id="feedback-text" class="mt-2 text-base"></p>
+                        <button id="next-btn" class="mt-4 bg-gray-800 text-white font-medium py-2 px-6 rounded-lg hover:bg-gray-900 transition-all focus:outline-none focus:ring-4 focus:ring-gray-300">
+                            Question suivante
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Écran des Résultats --><div id="results-screen" class="hidden p-8 sm:p-12 text-center">
+            <h1 class="text-3xl sm:text-4xl font-bold text-blue-800 mb-4">Quiz terminé !</h1>
+            <p class="text-lg text-gray-700 mb-6">Votre score final est de :</p>
+            <div class="my-8">
+                <span id="final-score" class="text-7xl font-bold text-blue-600">0</span>
+                <span class="text-3xl font-semibold text-gray-500">/ 10</span>
+            </div>
+            <p id="final-message" class="text-lg text-gray-800 mb-10 px-4">Message de félicitations...</p>
+            
+            <p class="text-base text-gray-600 mb-2">
+                Merci pour votre participation ! Chaque question est une étape de plus vers une entreprise plus responsable.
+            </p>
+            
+            <!-- Statut de l'enregistrement -->
+            <p id="submit-status" class="text-sm text-gray-500 mb-8 italic">Enregistrement de votre score...</p>
+
+            <button id="restart-btn" class="w-full sm:w-auto bg-blue-600 text-white font-bold py-3 px-12 rounded-lg text-lg hover:bg-blue-700 transition-all shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-300">
+                Recommencer le Quiz
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- IMPORTANT ---
+        // Collez ici l'URL de votre Web App Google Apps Script
+        // Suivez les instructions du fichier "instructions_googlesheet.md"
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyFNAei-7EXbAv8EIQm8Sz-hpOjTzc7gnKHhBVDUVbUkYPfGQeZ90SfF3TjXXRj6A6hrg/exec';
+        // -----------------
+
+
+        // --- Données du Quiz ---
+        const quizData = [
+            {
+                question: "Comment un enjeu environnemental (ex: la pollution plastique) devient-il un problème public majeur ?",
+                type: "mc", // mc = multiple choice (choix unique)
+                options: [
+                    "Automatiquement, dès qu'un scientifique publie une étude.",
+                    "Uniquement si les politiques s'en emparent pour les élections.",
+                    "Par étapes : alerte (scientifiques, ONG), prise de conscience du public (médias) et enfin action politique/législative."
+                ],
+                correct: [2], // Index de la bonne réponse
+                feedback: "Exact ! Une question environnementale devient un problème public par un processus complexe, impliquant de nombreux acteurs (ONG, experts, médias, citoyens...) jusqu'à son inscription à l'agenda politique."
+            },
+            {
+                question: "Au sein de notre PME, qui est (ou devrait être) impliqué dans la transition écologique ?",
+                type: "mc",
+                options: [
+                    "Uniquement la Direction, qui fixe la stratégie.",
+                    "Seulement le responsable HSE / RSE.",
+                    "Absolument tout le monde, de l'atelier au bureau."
+                ],
+                correct: [2],
+                feedback: "C'est l'affaire de tous ! La transition écologique mobilise une grande diversité d'acteurs. Dans l'entreprise, chaque poste a un rôle à jouer, des achats à la production, en passant par l'administratif."
+            },
+            {
+                question: "Pourquoi la lutte contre le réchauffement climatique doit-elle se faire à la fois localement (chez nous) et globalement (au niveau des États) ?",
+                type: "cb", // cb = checkbox (choix multiples)
+                options: [
+                    "Parce que le climat est un \"bien commun\" mondial.",
+                    "Parce que les actions locales (ex: isoler un bâtiment) et globales (ex: accord international) sont complémentaires.",
+                    "Parce que l'échelle locale est la seule qui compte vraiment.",
+                    "Parce que l'échelle globale est trop lente et inefficace."
+                ],
+                correct: [0, 1],
+                feedback: "Tout à fait ! Le climat est un bien commun qui ne connaît pas les frontières. Les actions locales (isolation, tri, circuits courts) sont essentielles, mais elles doivent être soutenues par des cadres nationaux et internationaux pour être pleinement efficaces."
+            },
+            {
+                question: "En tant que PME en Sarthe, quelle action concrète peut avoir un impact significatif ?",
+                type: "mc",
+                options: [
+                    "Installer une fontaine à eau pour remplacer les bouteilles plastiques.",
+                    "Optimiser les tournées de livraison pour réduire la consommation de carburant.",
+                    "Mettre en place le tri du papier au bureau.",
+                    "Toutes ces actions sont utiles et leur impact combiné est significatif."
+                ],
+                correct: [3],
+                feedback: "Bravo ! C'est la somme de toutes ces actions qui fait la différence. L'optimisation des tournées a souvent un gros impact (CO2 et financier), mais le tri et la réduction du plastique sont aussi cruciaux pour la RSE."
+            },
+            {
+                question: "Dans la \"théorie économique\", le réchauffement climatique est une \"externalité négative\". Qu'est-ce que ça veut dire en simple ?",
+                type: "mc",
+                options: [
+                    "Un coût que l'on ne peut pas calculer.",
+                    "Une conséquence négative (ex: pollution) d'une activité économique, dont le coût n'est pas payé par le pollueur (mais par la société).",
+                    "Un problème qui vient de l'extérieur de l'entreprise."
+                ],
+                correct: [1],
+                feedback: "C'est exactement ça ! C'est une conséquence (négative) de l'activité humaine qui affecte d'autres personnes (coûts de santé, dégâts climatiques...) sans être prise en compte dans le prix de vente. Les outils écologiques visent à \"internaliser\" ce coût."
+            },
+            {
+                question: "Une réglementation écologique (ex: interdire les sacs plastique à usage unique) repose principalement sur :",
+                type: "mc",
+                options: [
+                    "L'incitation (ex: une subvention pour acheter un sac réutilisable)",
+                    "La contrainte (une interdiction ou une obligation légale)",
+                    "La communication (faire une campagne de publicité)"
+                ],
+                correct: [1],
+                feedback: "En effet. La réglementation IMPOSE des normes ou des interdictions. C'est un outil basé sur la contrainte, complémentaire des outils basés sur l'incitation (taxes, subventions, marché carbone)."
+            },
+            {
+                question: "Les \"petits gestes\" individuels (trier ses déchets, éteindre sa lumière) sont-ils suffisants pour relever le défi climatique ?",
+                type: "mc",
+                options: [
+                    "Oui, si tout le monde s'y met, cela suffira.",
+                    "Non, ils sont inutiles, seule l'action des États et des grosses industries compte.",
+                    "Non, ils sont INDISPENSABLES mais pas suffisants. Ils doivent être complétés par des actions collectives et politiques fortes."
+                ],
+                correct: [2],
+                feedback: "C'est la réponse la plus juste. Les gestes individuels sont essentiels (ils créent une culture, un engagement) mais la transformation écologique nécessite aussi des politiques publiques, des innovations et l'engagement de TOUS les acteurs (dont les entreprises)."
+            },
+            {
+                question: "Quels sont les rôles du marché des \"quotas d'émissions de CO₂\" (ou \"permis à polluer\") ?",
+                type: "cb",
+                options: [
+                    "Fixer un plafond global d'émissions à ne pas dépasser.",
+                    "Inciter les entreprises à innover pour émettre moins de CO₂ (car émettre coûte de l'argent).",
+                    "Permettre de répartir les efforts de réduction là où ils sont le moins coûteux.",
+                    "Donner un droit illimité de polluer."
+                ],
+                correct: [0, 1, 2],
+                feedback: "Excellent ! Cet outil fixe un plafond global (l'objectif) et utilise le marché pour inciter les entreprises à réduire leurs émissions ou à innover, tout en leur laissant une certaine flexibilité pour trouver les solutions les plus efficaces."
+            },
+            {
+                question: "Concrètement, la transition écologique pour une PME, c'est surtout...",
+                type: "mc",
+                options: [
+                    "Une source de coûts et de contraintes supplémentaires.",
+                    "Seulement une question d'image de marque pour attirer les clients.",
+                    "Une contrainte, mais aussi un levier d'innovation, d'économies et d'attractivité (clients, talents...)."
+                ],
+                correct: [2],
+                feedback: "C'est la vision moderne ! Si la transition demande des efforts, elle est aussi un formidable moteur pour innover (éco-conception), faire des économies (énergie, matières), fédérer les équipes et répondre aux attentes des clients et des futurs employés."
+            },
+            {
+                // Question "clin d'oeil" locale
+                question: "La Sarthe est réputée (entre autres !) pour son agroalimentaire. Comment ce secteur peut-il innover pour l'écologie ?",
+                type: "cb",
+                options: [
+                    "En développant les circuits d'approvisionnement locaux.",
+                    "En travaillant sur des emballages 100% recyclables ou compostables.",
+                    "En valorisant les \"co-produits\" (déchets) en énergie (méthanisation) ou en alimentation animale.",
+                    "En réduisant sa consommation d'eau et d'énergie."
+                ],
+                correct: [0, 1, 2, 3],
+                feedback: "Toutes ces réponses sont bonnes ! L'agroalimentaire a de nombreux leviers : circuits courts, éco-conception des emballages, économie circulaire (valorisation des déchets) et sobriété énergétique. C'est un secteur clé de la transition !"
+            }
+        ];
+
+        // --- Éléments du DOM ---
+        const introScreen = document.getElementById('intro-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultsScreen = document.getElementById('results-screen');
+
+        const emailForm = document.getElementById('email-form');
+        const emailInput = document.getElementById('email-input');
+        const emailError = document.getElementById('email-error');
+        
+        const restartBtn = document.getElementById('restart-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const validateBtn = document.getElementById('validate-btn');
+
+        const questionCounter = document.getElementById('question-counter');
+        const currentScoreEl = document.getElementById('current-score');
+        const progressBar = document.getElementById('progress-bar');
+        const questionText = document.getElementById('question-text');
+        const multiSelectHint = document.getElementById('multi-select-hint');
+        const optionsContainer = document.getElementById('options-container');
+
+        const feedbackContainer = document.getElementById('feedback-container');
+        const feedbackIcon = document.getElementById('feedback-icon');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const feedbackText = document.getElementById('feedback-text');
+
+        const finalScore = document.getElementById('final-score');
+        const finalMessage = document.getElementById('final-message');
+        const submitStatus = document.getElementById('submit-status');
+
+        // Icônes pour le feedback
+        const checkIcon = `
+            <svg class="h-8 w-8 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>`;
+        const crossIcon = `
+            <svg class="h-8 w-8 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>`;
+
+        // --- État du Quiz ---
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let userSelection = []; // Pour les questions à choix multiples (cb)
+        let userEmail = "";
+
+        // --- Fonctions ---
+
+        function handleStartSubmit(event) {
+            event.preventDefault();
+            const email = emailInput.value;
+            if (email && email.includes('@')) { // Validation simple
+                userEmail = email;
+                emailError.classList.add('hidden');
+                startQuiz();
+            } else {
+                emailError.classList.remove('hidden');
+            }
+        }
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            userSelection = [];
+            introScreen.classList.add('hidden');
+            resultsScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            loadQuestion();
+            updateScoreboard();
+        }
+        
+        function restartQuiz() {
+            // Remet le quiz à l'écran d'introduction
+            resultsScreen.classList.add('hidden');
+            quizScreen.classList.add('hidden');
+            introScreen.classList.remove('hidden');
+            emailInput.value = ""; // Vider l'email
+            userEmail = "";
+            submitStatus.innerText = "Enregistrement de votre score..."; // Réinitialiser le statut
+            submitStatus.className = "text-sm text-gray-500 mb-8 italic";
+        }
+
+
+        function loadQuestion() {
+            // Réinitialiser
+            userSelection = [];
+            feedbackContainer.classList.add('hidden');
+            validateBtn.classList.add('hidden');
+            multiSelectHint.classList.add('hidden'); // Cacher l'indice par défaut
+            optionsContainer.innerHTML = ''; // Vider les options précédentes
+
+            const question = quizData[currentQuestionIndex];
+            questionText.innerText = question.question;
+
+            // Mise à jour de la progression
+            questionCounter.innerText = `Question ${currentQuestionIndex + 1} / ${quizData.length}`;
+            progressBar.style.width = `${((currentQuestionIndex + 1) / quizData.length) * 100}%`;
+
+            // Créer les boutons d'option
+            question.options.forEach((option, index) => {
+                const optionBtn = document.createElement('button');
+                optionBtn.innerHTML = `<span class="font-medium">${option}</span>`;
+                optionBtn.className = "w-full p-4 rounded-lg border-2 border-gray-300 text-gray-800 text-left transition-all duration-150 hover:bg-blue-50 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300";
+                optionBtn.dataset.index = index;
+
+                if (question.type === 'mc') {
+                    optionBtn.onclick = () => selectAnswerMC(index, optionBtn);
+                } else { // type === 'cb'
+                    optionBtn.onclick = () => selectAnswerCB(index, optionBtn);
+                }
+                optionsContainer.appendChild(optionBtn);
+            });
+
+            // Afficher le bouton Valider et l'indice pour les 'cb'
+            if (question.type === 'cb') {
+                validateBtn.classList.remove('hidden');
+                multiSelectHint.classList.remove('hidden');
+            }
+        }
+
+        // Sélection pour Choix Unique (MC)
+        function selectAnswerMC(index) {
+            const question = quizData[currentQuestionIndex];
+            const isCorrect = question.correct[0] === index;
+
+            if (isCorrect) {
+                score++;
+                updateScoreboard();
+            }
+
+            // Désactiver tous les boutons
+            Array.from(optionsContainer.children).forEach(btn => {
+                btn.disabled = true;
+                btn.classList.remove('hover:bg-blue-50', 'hover:border-blue-400');
+            });
+            
+            // Afficher le feedback
+            showFeedback(isCorrect, question.feedback);
+
+            // Colorer les réponses
+            styleOptions(isCorrect, index);
+        }
+
+        // Sélection pour Choix Multiples (CB)
+        function selectAnswerCB(index, buttonEl) {
+            // Ajouter ou retirer l'index de la sélection
+            const selectionIndex = userSelection.indexOf(index);
+            if (selectionIndex > -1) {
+                userSelection.splice(selectionIndex, 1);
+                buttonEl.classList.remove('option-selected');
+            } else {
+                userSelection.push(index);
+                buttonEl.classList.add('option-selected');
+            }
+        }
+
+        // Validation pour Choix Multiples (CB)
+        function validateAnswersCB() {
+            const question = quizData[currentQuestionIndex];
+            
+            // Trier les deux tableaux pour les comparer
+            const sortedSelection = [...userSelection].sort((a, b) => a - b);
+            const sortedCorrect = [...question.correct].sort((a, b) => a - b);
+
+            const isCorrect = JSON.stringify(sortedSelection) === JSON.stringify(sortedCorrect);
+
+            if (isCorrect) {
+                score++;
+                updateScoreboard();
+            }
+
+            // Désactiver tous les boutons
+            Array.from(optionsContainer.children).forEach(btn => {
+                btn.disabled = true;
+                btn.classList.remove('hover:bg-blue-50', 'hover:border-blue-400', 'option-selected');
+            });
+
+            // Afficher le feedback
+            showFeedback(isCorrect, question.feedback);
+
+            // Cacher le bouton Valider
+            validateBtn.classList.add('hidden');
+            multiSelectHint.classList.add('hidden');
+
+            // Colorer les réponses
+            styleOptions(isCorrect);
+        }
+
+        // Logique de coloration (commune à MC et CB)
+        function styleOptions(isOverallCorrect, selectedIndex = -1) {
+            const question = quizData[currentQuestionIndex];
+            const allOptions = Array.from(optionsContainer.children);
+
+            allOptions.forEach((btn, index) => {
+                const isCorrectAnswer = question.correct.includes(index);
+                const isSelected = (question.type === 'mc') ? (index === selectedIndex) : userSelection.includes(index);
+
+                if (isCorrectAnswer) {
+                    // Bonne réponse
+                    btn.className = "w-full p-4 rounded-lg border-2 border-green-500 bg-green-50 text-gray-900 text-left";
+                } else if (isSelected && !isCorrectAnswer) {
+                    // Mauvaise réponse sélectionnée
+                    btn.className = "w-full p-4 rounded-lg border-2 border-red-500 bg-red-50 text-gray-900 text-left";
+                } else {
+                    // Option non sélectionnée (et non correcte)
+                    btn.className = "w-full p-4 rounded-lg border-2 border-gray-300 text-gray-800 text-left opacity-70";
+                }
+            });
+        }
+
+        // Afficher le feedback
+        function showFeedback(isCorrect, text) {
+            feedbackContainer.classList.remove('hidden');
+            feedbackText.innerText = text;
+
+            if (isCorrect) {
+                feedbackContainer.className = "mt-6 p-5 rounded-lg bg-green-50";
+                feedbackIcon.innerHTML = checkIcon;
+                feedbackTitle.innerText = "Bonne réponse !";
+                feedbackTitle.className = "text-lg font-bold text-green-800";
+            } else {
+                feedbackContainer.className = "mt-6 p-5 rounded-lg bg-red-50";
+                feedbackIcon.innerHTML = crossIcon;
+                feedbackTitle.innerText = "Oups ! Voici l'explication :";
+                feedbackTitle.className = "text-lg font-bold text-red-800";
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            quizScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+
+            finalScore.innerText = score;
+            const percentage = Math.round((score / quizData.length) * 100);
+            
+            let message = "";
+            if (percentage < 40) {
+                message = "C'est un bon début ! Le plus important est d'avoir participé et d'apprendre. Chaque petit pas compte !";
+            } else if (percentage < 80) {
+                message = "Super score ! Vous maîtrisez déjà très bien les bases de ces enjeux. Continuons ensemble !";
+            } else {
+                message = "Excellent ! Vous êtes en mesure de devenir un véritable ambassadeur de la transition écologique pour l'entreprise !";
+            }
+            finalMessage.innerText = message;
+
+            // Envoyer les données au Google Sheet
+            submitToGoogleSheet(userEmail, score);
+        }
+        
+        async function submitToGoogleSheet(email, finalScore) {
+            if (GOOGLE_SCRIPT_URL === 'VOTRE_URL_APPS_SCRIPT_ICI' || GOOGLE_SCRIPT_URL === '') {
+                submitStatus.innerText = "Configuration Google Sheet manquante.";
+                submitStatus.className = "text-sm text-red-600 mb-8 font-medium";
+                console.error("Veuillez renseigner GOOGLE_SCRIPT_URL dans le script.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('email', email);
+            formData.append('score', finalScore);
+
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+
+                if (result.result === 'success') {
+                    submitStatus.innerText = "Votre score a bien été enregistré !";
+                    submitStatus.className = "text-sm text-green-600 mb-8 font-medium";
+                } else {
+                    throw new Error(result.message || 'Erreur inconnue');
+                }
+            } catch (error) {
+                console.error('Erreur lors de l-envoi au Google Sheet:', error);
+                submitStatus.innerText = "Erreur lors de l'enregistrement du score.";
+                submitStatus.className = "text-sm text-red-600 mb-8 font-medium";
+            }
+        }
+
+
+        function updateScoreboard() {
+            currentScoreEl.innerText = `Score: ${score}`;
+        }
+
+        // --- Écouteurs d'événements ---
+        emailForm.addEventListener('submit', handleStartSubmit);
+        restartBtn.addEventListener('click', restartQuiz);
+        nextBtn.addEventListener('click', nextQuestion);
+        validateBtn.addEventListener('click', validateAnswersCB);
+
+    </script>
+</body>
+</html>
+
+
