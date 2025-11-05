@@ -40,9 +40,23 @@
 
             <!-- Formulaire d'Email -->
             <form id="email-form" class="mt-8 text-left max-w-md mx-auto">
-                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Pour commencer et enregistrer votre score, veuillez entrer votre email :</label>
-                <input type="email" id="email-input" name="email" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="votre.email@lacme.com" required>
-                <p id="email-error" class="text-red-600 text-sm mt-1 hidden">Veuillez entrer une adresse email valide.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="prenom" class="block text-sm font-medium text-gray-700 mb-2">Prénom :</label>
+                        <input type="text" id="prenom-input" name="prenom" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Votre prénom" required>
+                    </div>
+                    <div>
+                        <label for="nom" class="block text-sm font-medium text-gray-700 mb-2">Nom :</label>
+                        <input type="text" id="nom-input" name="nom" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Votre nom" required>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email :</label>
+                    <input type="email" id="email-input" name="email" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="votre.email@lacme.com" required>
+                </div>
+                
+                <p id="email-error" class="text-red-600 text-sm mt-2 hidden">Veuillez remplir tous les champs (email valide).</p>
                 
                 <button id="start-btn" type="submit" class="w-full mt-6 bg-blue-600 text-white font-bold py-3 px-12 rounded-lg text-lg hover:bg-blue-700 transition-all shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-300">
                     Lançons le défi !
@@ -247,6 +261,8 @@
         const emailForm = document.getElementById('email-form');
         const emailInput = document.getElementById('email-input');
         const emailError = document.getElementById('email-error');
+        const nomInput = document.getElementById('nom-input'); // Ajout
+        const prenomInput = document.getElementById('prenom-input'); // Ajout
         
         const restartBtn = document.getElementById('restart-btn');
         const nextBtn = document.getElementById('next-btn');
@@ -283,17 +299,25 @@
         let score = 0;
         let userSelection = []; // Pour les questions à choix multiples (cb)
         let userEmail = "";
+        let userNom = ""; // Ajout
+        let userPrenom = ""; // Ajout
 
         // --- Fonctions ---
 
         function handleStartSubmit(event) {
             event.preventDefault();
             const email = emailInput.value;
-            if (email && email.includes('@')) { // Validation simple
+            const nom = nomInput.value; // Ajout
+            const prenom = prenomInput.value; // Ajout
+            
+            if (email && email.includes('@') && nom && prenom) { // Validation simple
                 userEmail = email;
+                userNom = nom; // Ajout
+                userPrenom = prenom; // Ajout
                 emailError.classList.add('hidden');
                 startQuiz();
             } else {
+                emailError.innerText = "Veuillez remplir tous les champs (email valide)." // Message d'erreur mis à jour
                 emailError.classList.remove('hidden');
             }
         }
@@ -315,7 +339,11 @@
             quizScreen.classList.add('hidden');
             introScreen.classList.remove('hidden');
             emailInput.value = ""; // Vider l'email
+            nomInput.value = ""; // Vider le nom
+            prenomInput.value = ""; // Vider le prénom
             userEmail = "";
+            userNom = ""; // Ajout
+            userPrenom = ""; // Ajout
             submitStatus.innerText = "Enregistrement de votre score..."; // Réinitialiser le statut
             submitStatus.className = "text-sm text-gray-500 mb-8 italic";
         }
@@ -493,10 +521,10 @@
             finalMessage.innerText = message;
 
             // Envoyer les données au Google Sheet
-            submitToGoogleSheet(userEmail, score);
+            submitToGoogleSheet(); // Plus besoin d'arguments, on utilise les variables globales
         }
         
-        async function submitToGoogleSheet(email, finalScore) {
+        async function submitToGoogleSheet() {
             if (GOOGLE_SCRIPT_URL === 'VOTRE_URL_APPS_SCRIPT_ICI' || GOOGLE_SCRIPT_URL === '') {
                 submitStatus.innerText = "Configuration Google Sheet manquante.";
                 submitStatus.className = "text-sm text-red-600 mb-8 font-medium";
@@ -505,8 +533,10 @@
             }
 
             const formData = new FormData();
-            formData.append('email', email);
-            formData.append('score', finalScore);
+            formData.append('prenom', userPrenom); // Ajout
+            formData.append('nom', userNom); // Ajout
+            formData.append('email', userEmail);
+            formData.append('score', score); // 'score' est déjà une variable globale
 
             try {
                 const response = await fetch(GOOGLE_SCRIPT_URL, {
@@ -543,5 +573,3 @@
     </script>
 </body>
 </html>
-
-
