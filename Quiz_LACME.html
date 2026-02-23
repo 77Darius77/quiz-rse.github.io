@@ -53,8 +53,8 @@
 
         <!-- Écran d'Introduction -->
         <div id="intro-screen" class="p-8 sm:p-12 text-center">
-            <!-- Logo LACMÉ --><img
-                src="https://cheval-partenaire.fr/wp-content/uploads/2017/11/lacme_logo-1024x153.png" alt="Logo LACMÉ"
+            <!-- Logo LACMÉ -->
+            <img src="https://cheval-partenaire.fr/wp-content/uploads/2017/11/lacme_logo-1024x153.png" alt="Logo LACMÉ"
                 class="mx-auto mb-6 max-h-20 sm:max-h-24 object-contain">
 
             <h1 class="text-3xl sm:text-4xl font-bold text-blue-800 mb-4">Quiz LACMÉ: Prêts pour la transition ?</h1>
@@ -62,8 +62,8 @@
                 Bienvenue à vous cher collaborateur de LACMÉ ! 👋
             </p>
             <p class="text-lg text-gray-700 mb-6">
-                Ce quiz ludique est une excellente occasion de tester et d'enrichir vos connaissances sur les enjeux
-                environnementaux qui nous concernent tous.
+                Ce quiz ludique est une excellente occasion de tester vos connaissances sur les enjeux
+                environnementaux et de découvrir les **actions concrètes** réalisées par notre entreprise en 2024.
             </p>
             <p class="text-base text-gray-600 mb-6 font-medium">
                 Attention : pour certaines questions, plusieurs réponses peuvent être exactes. Cochez-les toutes pour
@@ -184,25 +184,14 @@
     <script>
         // --- IMPORTANT ---
         // Collez ici l'URL de votre Web App Google Apps Script
-        // Suivez les instructions du fichier "instructions_googlesheet.md"
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxg0xpJMksniiklKHptUwvWewF2EXK8ApZ2-F-7LgTd4y-HfBlMlfphEtNwJJDeu90VmA/exec';
         // -----------------
 
 
-        // --- Données du Quiz ---
+        // --- Données du Quiz (Mises à jour pour LACMÉ 2024) ---
         const quizData = [
             {
-                question: "Comment un enjeu environnemental (ex: la pollution plastique) devient-il un problème public majeur ?",
-                type: "mc", // mc = multiple choice (choix unique)
-                options: [
-                    "Automatiquement, dès qu'un scientifique publie une étude.",
-                    "Uniquement si les politiques s'en emparent pour les élections.",
-                    "Par étapes : alerte (scientifiques, ONG), prise de conscience du public (médias) et enfin action politique/législative."
-                ],
-                correct: [2], // Index de la bonne réponse
-                feedback: "Exact ! Une question environnementale devient un problème public par un processus complexe, impliquant de nombreux acteurs (ONG, experts, médias, citoyens...) jusqu'à son inscription à l'agenda politique."
-            },
-            {
+                // Q1: Généralité pour commencer
                 question: "Au sein de notre PME, qui est (ou devrait être) impliqué dans la transition écologique ?",
                 type: "mc",
                 options: [
@@ -214,97 +203,115 @@
                 feedback: "C'est l'affaire de tous ! La transition écologique mobilise une grande diversité d'acteurs. Dans l'entreprise, chaque poste a un rôle à jouer, des achats à la production, en passant par l'administratif."
             },
             {
-                question: "Pourquoi la lutte contre le réchauffement climatique doit-elle se faire à la fois localement (chez nous) et globalement (au niveau des États) ?",
-                type: "cb", // cb = checkbox (choix multiples)
+                // Q2: LACMÉ Spécifique - Surface Entrepôt
+                question: "Le nouvel entrepôt logistique de LACMÉ est une pièce maîtresse de notre stratégie. Quelle est sa surface totale ?",
+                type: "mc",
+                options: [
+                    "2 400 m²",
+                    "6 000 m²",
+                    "10 000 m²"
+                ],
+                correct: [1],
+                feedback: "Exactement ! Ce bâtiment de 6 000 m² n'est pas qu'une zone de stockage : il a été conçu pour être autonome en énergie grâce à sa toiture solaire."
+            },
+            {
+                // Q3: LACMÉ Spécifique - Panneaux Solaires
+                question: "Pour assurer l'autonomie énergétique de ce nouvel entrepôt, combien de panneaux photovoltaïques ont été installés sur le toit ?",
+                type: "mc",
+                options: [
+                    "Environ 500 panneaux",
+                    "1 084 panneaux",
+                    "2 400 panneaux"
+                ],
+                correct: [1],
+                feedback: "C'est précis ! 1 084 panneaux couvrent 2 400 m² de toiture. Cet investissement doit nous permettre de couvrir près de 50% des besoins en électricité de tout le site d'ici 2026."
+            },
+            {
+                // Q4: Généralité RSE
+                question: "Pourquoi la lutte contre le réchauffement climatique doit-elle se faire à la fois localement (chez nous) et globalement ?",
+                type: "cb",
                 options: [
                     "Parce que le climat est un \"bien commun\" mondial.",
-                    "Parce que les actions locales (ex: isoler un bâtiment) et globales (ex: accord international) sont complémentaires.",
+                    "Parce que les actions locales (ex: isoler un bâtiment) et globales sont complémentaires.",
                     "Parce que l'échelle locale est la seule qui compte vraiment.",
                     "Parce que l'échelle globale est trop lente et inefficace."
                 ],
                 correct: [0, 1],
-                feedback: "Tout à fait ! Le climat est un bien commun qui ne connaît pas les frontières. Les actions locales (isolation, tri, circuits courts) sont essentielles, mais elles doivent être soutenues par des cadres nationaux et internationaux pour être pleinement efficaces."
+                feedback: "Tout à fait ! Le climat est un bien commun qui ne connaît pas les frontières. Les actions locales (isolation, tri, panneaux solaires) sont essentielles, mais elles doivent être coordonnées pour être pleinement efficaces."
             },
             {
-                question: "En tant que PME en Sarthe, quelle action concrète peut avoir un impact significatif ?",
+                // Q5: LACMÉ Spécifique - Déchets (Nuance 85% vs 58%)
+                question: "En 2024, quelle part précise de nos déchets a trouvé une véritable 'seconde vie' (recyclage matière ou surcyclage) ?",
                 type: "mc",
                 options: [
-                    "Installer une fontaine à eau pour remplacer les bouteilles plastiques.",
-                    "Optimiser les tournées de livraison pour réduire la consommation de carburant.",
-                    "Mettre en place le tri du papier au bureau.",
-                    "Toutes ces actions sont utiles et leur impact combiné est significatif."
-                ],
-                correct: [3],
-                feedback: "Bravo ! C'est la somme de toutes ces actions qui fait la différence. L'optimisation des tournées a souvent un gros impact (CO2 et financier), mais le tri et la réduction du plastique sont aussi cruciaux pour la RSE."
-            },
-            {
-                question: "Dans la \"théorie économique\", le réchauffement climatique est une \"externalité négative\". Qu'est-ce que ça veut dire en simple ?",
-                type: "mc",
-                options: [
-                    "Un coût que l'on ne peut pas calculer.",
-                    "Une conséquence négative (ex: pollution) d'une activité économique, dont le coût n'est pas payé par le pollueur (mais par la société).",
-                    "Un problème qui vient de l'extérieur de l'entreprise."
+                    "30 %",
+                    "58 %",
+                    "85 %"
                 ],
                 correct: [1],
-                feedback: "C'est exactement ça ! C'est une conséquence (négative) de l'activité humaine qui affecte d'autres personnes (coûts de santé, dégâts climatiques...) sans être prise en compte dans le prix de vente. Les outils écologiques visent à \"internaliser\" ce coût."
+                feedback: "Bien joué ! La nuance est importante : 85% de nos déchets sont 'valorisés' (ce qui inclut la valorisation énergétique, donc destruction), mais 58% sont réellement 'recyclés' pour redevenir de la matière."
             },
             {
-                question: "Une réglementation écologique (ex: interdire les sacs plastique à usage unique) repose principalement sur :",
+                // Q6: LACMÉ Spécifique - Santé / CMR
+                question: "Côté santé et sécurité au travail, quelle avancée majeure a été réalisée dans l'atelier résinage en 2024 ?",
                 type: "mc",
                 options: [
-                    "L'incitation (ex: une subvention pour acheter un sac réutilisable)",
-                    "La contrainte (une interdiction ou une obligation légale)",
-                    "La communication (faire une campagne de publicité)"
+                    "L'élimination totale des substances CMR (Cancérogènes, Mutagènes, Reprotoxiques).",
+                    "L'installation de la climatisation intégrale.",
+                    "La mise en place du télétravail pour les opérateurs."
                 ],
-                correct: [1],
-                feedback: "En effet. La réglementation IMPOSE des normes ou des interdictions. C'est un outil basé sur la contrainte, complémentaire des outils basés sur l'incitation (taxes, subventions, marché carbone)."
+                correct: [0],
+                feedback: "C'est un engagement fort du rapport 2024 ! Le nouveau process supprime les CMR et réduit drastiquement les COV (Composés Organiques Volatils), garantissant plus de sécurité pour nos collaborateurs."
             },
             {
+                // Q7: Généralité RSE - Petits gestes
                 question: "Les \"petits gestes\" individuels (trier ses déchets, éteindre sa lumière) sont-ils suffisants pour relever le défi climatique ?",
                 type: "mc",
                 options: [
                     "Oui, si tout le monde s'y met, cela suffira.",
-                    "Non, ils sont inutiles, seule l'action des États et des grosses industries compte.",
-                    "Non, ils sont INDISPENSABLES mais pas suffisants. Ils doivent être complétés par des actions collectives et politiques fortes."
+                    "Non, ils sont inutiles.",
+                    "Non, ils sont INDISPENSABLES mais pas suffisants. Ils doivent être complétés par des actions collectives et industrielles."
                 ],
                 correct: [2],
-                feedback: "C'est la réponse la plus juste. Les gestes individuels sont essentiels (ils créent une culture, un engagement) mais la transformation écologique nécessite aussi des politiques publiques, des innovations et l'engagement de TOUS les acteurs (dont les entreprises)."
+                feedback: "C'est la réponse la plus juste. Les gestes individuels créent une culture d'engagement, mais la transformation écologique nécessite aussi des investissements lourds comme ceux réalisés par LACMÉ (bâtiment, process)."
             },
             {
-                question: "Quels sont les rôles du marché des \"quotas d'émissions de CO₂\" (ou \"permis à polluer\") ?",
+                // Q8: Contextuel PME Sarthe
+                question: "En tant que PME en Sarthe, quelle action concrète a un impact significatif ?",
+                type: "mc",
+                options: [
+                    "Remplacer les bouteilles plastiques.",
+                    "Optimiser les tournées de livraison.",
+                    "Trier le papier et les déchets industriels.",
+                    "Toutes ces actions sont utiles et leur impact combiné est significatif."
+                ],
+                correct: [3],
+                feedback: "Bravo ! C'est la somme de toutes ces actions qui fait la différence. L'optimisation logistique a un gros impact CO2, et la gestion des déchets (comme nos 58% recyclés) est cruciale."
+            },
+            {
+                // Q9: Question bonus sur la mobilité (Mentionnée dans le PDF)
+                question: "En 2024, LACMÉ a intégré un véhicule utilitaire 100% électrique pour sa logistique interne. Quel est le bénéfice immédiat ?",
                 type: "cb",
                 options: [
-                    "Fixer un plafond global d'émissions à ne pas dépasser.",
-                    "Inciter les entreprises à innover pour émettre moins de CO₂ (car émettre coûte de l'argent).",
-                    "Permettre de répartir les efforts de réduction là où ils sont le moins coûteux.",
-                    "Donner un droit illimité de polluer."
+                    "Réduction des émissions de CO2 sur le site.",
+                    "Suppression de la pollution sonore.",
+                    "Cela permet de rouler plus vite dans les allées.",
+                    "Élimination des gaz d'échappement dans les zones de travail."
                 ],
-                correct: [0, 1, 2],
-                feedback: "Excellent ! Cet outil fixe un plafond global (l'objectif) et utilise le marché pour inciter les entreprises à réduire leurs émissions ou à innover, tout en leur laissant une certaine flexibilité pour trouver les solutions les plus efficaces."
+                correct: [0, 1, 3],
+                feedback: "Exactement ! Ce remplacement supprime les émissions directes et le bruit, améliorant à la fois le bilan carbone et le confort de travail sur le site."
             },
             {
-                question: "Concrètement, la transition écologique pour une PME, c'est surtout...",
+                // Q10: Conclusion
+                question: "Concrètement, la transition écologique pour une PME comme LACMÉ, c'est surtout...",
                 type: "mc",
                 options: [
                     "Une source de coûts et de contraintes supplémentaires.",
-                    "Seulement une question d'image de marque pour attirer les clients.",
-                    "Une contrainte, mais aussi un levier d'innovation, d'économies et d'attractivité (clients, talents...)."
+                    "Une contrainte réglementaire, mais aussi un levier d'innovation, d'économies et d'attractivité.",
+                    "Seulement une question d'image de marque."
                 ],
-                correct: [2],
-                feedback: "C'est la vision moderne ! Si la transition demande des efforts, elle est aussi un formidable moteur pour innover (éco-conception), faire des économies (énergie, matières), fédérer les équipes et répondre aux attentes des clients et des futurs employés."
-            },
-            {
-                // Question "clin d'oeil" locale
-                question: "La Sarthe est réputée (entre autres !) pour son agroalimentaire. Comment ce secteur peut-il innover pour l'écologie ?",
-                type: "cb",
-                options: [
-                    "En développant les circuits d'approvisionnement locaux.",
-                    "En travaillant sur des emballages 100% recyclables ou compostables.",
-                    "En valorisant les \"co-produits\" (déchets) en énergie (méthanisation) ou en alimentation animale.",
-                    "En réduisant sa consommation d'eau et d'énergie."
-                ],
-                correct: [0, 1, 2, 3],
-                feedback: "Toutes ces réponses sont bonnes ! L'agroalimentaire a de nombreux leviers : circuits courts, éco-conception des emballages, économie circulaire (valorisation des déchets) et sobriété énergétique. C'est un secteur clé de la transition !"
+                correct: [1],
+                feedback: "C'est la vision moderne ! Si la transition demande des efforts, elle est aussi un formidable moteur pour innover (nouvel entrepôt), faire des économies (énergie) et protéger nos équipes (santé)."
             }
         ];
 
@@ -316,8 +323,8 @@
         const emailForm = document.getElementById('email-form');
         const emailInput = document.getElementById('email-input');
         const emailError = document.getElementById('email-error');
-        const nomInput = document.getElementById('nom-input'); // Ajout
-        const prenomInput = document.getElementById('prenom-input'); // Ajout
+        const nomInput = document.getElementById('nom-input');
+        const prenomInput = document.getElementById('prenom-input');
 
         const quitBtn = document.getElementById('quit-btn');
         const nextBtn = document.getElementById('next-btn');
@@ -354,8 +361,8 @@
         let score = 0;
         let userSelection = []; // Pour les questions à choix multiples (cb)
         let userEmail = "";
-        let userNom = ""; // Ajout
-        let userPrenom = ""; // Ajout
+        let userNom = "";
+        let userPrenom = "";
 
         // --- Fonctions ---
 
@@ -427,11 +434,6 @@
             loadQuestion();
             updateScoreboard();
         }
-
-        function restartQuiz() {
-            // Supprimé (inutilisé désormais)
-        }
-
 
         function loadQuestion() {
             // Réinitialiser
@@ -598,14 +600,14 @@
             if (percentage < 40) {
                 message = "C'est un bon début ! Le plus important est d'avoir participé et d'apprendre. Chaque petit pas compte !";
             } else if (percentage < 80) {
-                message = "Super score ! Vous maîtrisez déjà très bien les bases de ces enjeux. Continuons ensemble !";
+                message = "Super score ! Vous maîtrisez déjà très bien les bases et les actions de LACMÉ. Continuons ensemble !";
             } else {
-                message = "Excellent ! Vous êtes en mesure de devenir un véritable ambassadeur de la transition écologique pour l'entreprise !";
+                message = "Excellent ! Vous êtes un véritable expert de la stratégie RSE de LACMÉ !";
             }
             finalMessage.innerText = message;
 
             // Envoyer les données au Google Sheet
-            submitToGoogleSheet(); // Plus besoin d'arguments, on utilise les variables globales
+            submitToGoogleSheet();
         }
 
         async function submitToGoogleSheet() {
@@ -617,10 +619,10 @@
             }
 
             const formData = new FormData();
-            formData.append('prenom', userPrenom); // Ajout
-            formData.append('nom', userNom); // Ajout
+            formData.append('prenom', userPrenom);
+            formData.append('nom', userNom);
             formData.append('email', userEmail);
-            formData.append('score', score); // 'score' est déjà une variable globale
+            formData.append('score', score);
 
             try {
                 const response = await fetch(GOOGLE_SCRIPT_URL, {
@@ -650,7 +652,6 @@
 
         // --- Écouteurs des événements ---
         emailForm.addEventListener('submit', handleStartSubmit);
-        // restartBtn supprimé
         nextBtn.addEventListener('click', nextQuestion);
         validateBtn.addEventListener('click', validateAnswersCB);
 
