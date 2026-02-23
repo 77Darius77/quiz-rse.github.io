@@ -31,6 +31,26 @@
 
     <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden">
 
+        <!-- Modale Email Existant -->
+        <div id="email-modal"
+            class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
+                    <svg class="h-10 w-10 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Adresse déjà utilisée</h3>
+                <p class="text-gray-600 mb-8">Désolé, mais cette adresse a déjà été utilisée pour participer au quiz.
+                </p>
+                <button onclick="closeApp()"
+                    class="w-full bg-gray-800 text-white font-bold py-3 px-4 rounded-lg text-lg hover:bg-gray-900 transition-all shadow-lg focus:outline-none focus:ring-4 focus:ring-gray-300">
+                    Au revoir
+                </button>
+            </div>
+        </div>
+
         <!-- Écran d'Introduction -->
         <div id="intro-screen" class="p-8 sm:p-12 text-center">
             <!-- Logo LACMÉ --><img
@@ -153,9 +173,9 @@
             <!-- Statut de l'enregistrement -->
             <p id="submit-status" class="text-sm text-gray-500 mb-8 italic">Enregistrement de votre score...</p>
 
-            <button id="restart-btn"
-                class="w-full sm:w-auto bg-blue-600 text-white font-bold py-3 px-12 rounded-lg text-lg hover:bg-blue-700 transition-all shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-300">
-                Recommencer le Quiz
+            <button id="quit-btn" onclick="closeApp()"
+                class="w-full sm:w-auto bg-gray-800 text-white font-bold py-3 px-12 rounded-lg text-lg hover:bg-gray-900 transition-all shadow-lg focus:outline-none focus:ring-4 focus:ring-gray-300">
+                Au revoir
             </button>
         </div>
 
@@ -299,7 +319,7 @@
         const nomInput = document.getElementById('nom-input'); // Ajout
         const prenomInput = document.getElementById('prenom-input'); // Ajout
 
-        const restartBtn = document.getElementById('restart-btn');
+        const quitBtn = document.getElementById('quit-btn');
         const nextBtn = document.getElementById('next-btn');
         const validateBtn = document.getElementById('validate-btn');
 
@@ -339,22 +359,62 @@
 
         // --- Fonctions ---
 
-        function handleStartSubmit(event) {
+        async function handleStartSubmit(event) {
             event.preventDefault();
-            const email = emailInput.value;
-            const nom = nomInput.value; // Ajout
-            const prenom = prenomInput.value; // Ajout
+            const email = emailInput.value.trim();
+            const nom = nomInput.value.trim();
+            const prenom = prenomInput.value.trim();
 
             if (email && email.includes('@') && nom && prenom) { // Validation simple
                 userEmail = email;
-                userNom = nom; // Ajout
-                userPrenom = prenom; // Ajout
+                userNom = nom;
+                userPrenom = prenom;
                 emailError.classList.add('hidden');
-                startQuiz();
+
+                // Vérification de l'email
+                const startBtn = document.getElementById('start-btn');
+                const originalText = startBtn.innerText;
+                startBtn.innerText = "Vérification...";
+                startBtn.disabled = true;
+
+                const formData = new FormData();
+                formData.append('action', 'checkEmail');
+                formData.append('email', userEmail);
+
+                try {
+                    const response = await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+
+                    if (result.exists === true) {
+                        // Afficher la modale de refus
+                        document.getElementById('email-modal').classList.remove('hidden');
+                    } else {
+                        startQuiz();
+                    }
+                } catch (error) {
+                    console.error("Erreur de vérification", error);
+                    // Lançons le quiz par défaut si erreur de réseau (ou script pas encore à jour)
+                    startQuiz();
+                } finally {
+                    startBtn.innerText = originalText;
+                    startBtn.disabled = false;
+                }
+
             } else {
-                emailError.innerText = "Veuillez remplir tous les champs (email valide)." // Message d'erreur mis à jour
+                emailError.innerText = "Veuillez remplir tous les champs (email valide).";
                 emailError.classList.remove('hidden');
             }
+        }
+
+        function closeApp() {
+            // Essaie de fermer l'onglet
+            window.close();
+            // Fallback si le navigateur bloque window.close()
+            document.body.innerHTML = '<div class="flex items-center justify-center min-h-screen"><h1 class="text-2xl font-bold text-gray-800 text-center px-4">Merci de votre participation. Vous pouvez maintenant fermer cet onglet.</h1></div>';
         }
 
         function startQuiz() {
@@ -369,18 +429,7 @@
         }
 
         function restartQuiz() {
-            // Remet le quiz à l'écran d'introduction
-            resultsScreen.classList.add('hidden');
-            quizScreen.classList.add('hidden');
-            introScreen.classList.remove('hidden');
-            emailInput.value = ""; // Vider l'email
-            nomInput.value = ""; // Vider le nom
-            prenomInput.value = ""; // Vider le prénom
-            userEmail = "";
-            userNom = ""; // Ajout
-            userPrenom = ""; // Ajout
-            submitStatus.innerText = "Enregistrement de votre score..."; // Réinitialiser le statut
-            submitStatus.className = "text-sm text-gray-500 mb-8 italic";
+            // Supprimé (inutilisé désormais)
         }
 
 
@@ -601,7 +650,7 @@
 
         // --- Écouteurs des événements ---
         emailForm.addEventListener('submit', handleStartSubmit);
-        restartBtn.addEventListener('click', restartQuiz);
+        // restartBtn supprimé
         nextBtn.addEventListener('click', nextQuestion);
         validateBtn.addEventListener('click', validateAnswersCB);
 
