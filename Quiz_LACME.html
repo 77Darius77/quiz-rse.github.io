@@ -560,6 +560,9 @@
         }
 
         function loadQuestion() {
+            // Remonter en haut de la page pour les questions longues sur mobile
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
             userSelection = [];
             feedbackContainer.classList.add('hidden');
             validateBtn.classList.add('hidden');
