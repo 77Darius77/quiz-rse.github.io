@@ -178,7 +178,7 @@
     <div class="absolute bottom-[-10%] right-[-10%] w-[30rem] h-[30rem] bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse-slow"
         style="animation-delay: 1.5s;"></div>
 
-    <main class="glass-panel flex-1 w-full relative z-10 flex flex-col border-none shadow-none rounded-none"
+    <main class="glass-panel w-full relative z-10 flex flex-col border-none shadow-none rounded-none min-h-screen"
         aria-live="polite">
 
         <!-- Modale Email Existant -->
@@ -202,11 +202,10 @@
         </div>
 
         <!-- Les différentes Vues -->
-        <div class="relative flex-1 flex flex-col w-full max-w-4xl mx-auto px-4 sm:px-8 py-8 sm:py-12">
+        <div class="relative w-full max-w-4xl mx-auto px-4 sm:px-8 py-8 sm:py-12">
 
             <!-- Écran d'Introduction -->
-            <section id="intro-screen"
-                class="flex-1 flex flex-col justify-center text-center view-transition view-visible w-full">
+            <section id="intro-screen" class="flex flex-col text-center view-transition view-visible w-full">
                 <!-- Logo LACMÉ -->
                 <div class="inline-block p-4 bg-white/50 rounded-2xl mb-8 shadow-sm border border-white/60">
                     <img src="https://cheval-partenaire.fr/wp-content/uploads/2017/11/lacme_logo-1024x153.png"
@@ -282,7 +281,7 @@
             </section>
 
             <!-- Écran du Quiz -->
-            <section id="quiz-screen" class="flex-1 flex flex-col p-0 view-transition view-hidden w-full">
+            <section id="quiz-screen" class="flex flex-col p-0 view-transition view-hidden w-full">
                 <!-- En-tête Quiz: Progression & Score -->
                 <div
                     class="mb-4 sm:mb-8 flex-shrink-0 bg-white/40 p-4 rounded-2xl border border-white/50 shadow-sm backdrop-blur-sm">
@@ -367,7 +366,7 @@
 
             <!-- Écran des Résultats -->
             <section id="results-screen"
-                class="flex-1 flex flex-col justify-center items-center text-center p-0 view-transition view-hidden w-full">
+                class="flex flex-col items-center text-center p-0 view-transition view-hidden w-full">
                 <div
                     class="inline-flex items-center justify-center p-4 bg-lacmeBlue-50 rounded-full mb-6 text-lacmeBlue-600 animate-bounce-subtle">
                     <svg class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
