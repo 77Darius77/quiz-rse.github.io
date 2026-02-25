@@ -207,7 +207,7 @@
         <div class="relative w-full max-w-4xl mx-auto px-4 sm:px-8 py-8 sm:py-12">
 
             <!-- Écran d'Introduction -->
-            <section id="intro-screen" class="flex flex-col text-center view-transition view-visible w-full">
+            <section id="intro-screen" class="text-center view-transition view-visible w-full block">
                 <!-- Logo LACMÉ -->
                 <div class="inline-block p-4 bg-white/50 rounded-2xl mb-8 shadow-sm border border-white/60">
                     <img src="https://cheval-partenaire.fr/wp-content/uploads/2017/11/lacme_logo-1024x153.png"
@@ -283,10 +283,9 @@
             </section>
 
             <!-- Écran du Quiz -->
-            <section id="quiz-screen" class="flex flex-col p-0 view-transition view-hidden w-full">
+            <section id="quiz-screen" class="view-transition view-hidden w-full block">
                 <!-- En-tête Quiz: Progression & Score -->
-                <div
-                    class="mb-4 sm:mb-8 flex-shrink-0 bg-white/40 p-4 rounded-2xl border border-white/50 shadow-sm backdrop-blur-sm">
+                <div class="mb-4 sm:mb-8 bg-white/40 p-4 rounded-2xl border border-white/50 shadow-sm backdrop-blur-sm">
                     <div class="flex justify-between items-end mb-3">
                         <div>
                             <span
@@ -314,7 +313,7 @@
                 </div>
 
                 <!-- Contenu de la question -->
-                <div class="mb-6 flex-shrink-0 animate-fade-in relative">
+                <div class="mb-6 animate-fade-in relative">
                     <div id="multi-select-hint"
                         class="absolute -top-3 left-0 bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full shadow-sm border border-amber-200 hidden flex items-center transform -translate-y-full">
                         <svg class="w-3.5 h-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -329,11 +328,11 @@
                 </div>
 
                 <!-- Options de réponse -->
-                <div id="options-container" class="grid grid-cols-1 gap-3 sm:gap-4 flex-grow content-start">
+                <div id="options-container" class="grid grid-cols-1 gap-3 sm:gap-4 content-start">
                     <!-- Les options seront injectées ici par JS -->
                 </div>
 
-                <div class="mt-auto pt-6 flex-shrink-0">
+                <div class="pt-6">
                     <!-- Bouton de validation (pour les cb) -->
                     <button id="validate-btn"
                         class="hidden w-full bg-slate-800 text-white font-bold py-3.5 px-8 rounded-xl text-lg hover:bg-slate-900 transition-all shadow-lg hover:shadow-xl modern-focus -translate-y-1">
@@ -367,8 +366,7 @@
             </section>
 
             <!-- Écran des Résultats -->
-            <section id="results-screen"
-                class="flex flex-col items-center text-center p-0 view-transition view-hidden w-full">
+            <section id="results-screen" class="text-center p-0 view-transition view-hidden w-full block">
                 <div
                     class="inline-flex items-center justify-center p-4 bg-lacmeBlue-50 rounded-full mb-6 text-lacmeBlue-600 animate-bounce-subtle">
                     <svg class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
