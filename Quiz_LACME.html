@@ -578,8 +578,12 @@
 
             question.options.forEach((option, index) => {
                 const btn = document.createElement('button');
-                btn.innerHTML = `<span class="flex items-start sm:items-center w-full"><span class="w-8 h-8 flex-shrink-0 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold mr-3 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors mt-0.5 sm:mt-0">${String.fromCharCode(65 + index)}</span><span class="text-left font-medium leading-snug break-words whitespace-normal w-full overflow-hidden">${option}</span></span>`;
-                btn.className = "quiz-option group w-full p-4 rounded-xl border-2 border-slate-200 bg-white text-slate-700 text-left modern-focus shadow-sm h-auto min-h-[4rem]";
+                btn.innerHTML = `
+                    <div class="flex items-start w-full">
+                        <div class="w-8 h-8 flex-shrink-0 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold mr-4 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors mt-0.5">${String.fromCharCode(65 + index)}</div>
+                        <div class="flex-1 text-left font-medium leading-relaxed break-words whitespace-normal">${option}</div>
+                    </div>`;
+                btn.className = "quiz-option group w-full p-4 sm:p-5 rounded-xl border-2 border-slate-200 bg-white text-slate-700 modern-focus shadow-sm hover:shadow-md transition-all h-auto";
                 btn.dataset.index = index;
 
                 if (question.type === 'mc') btn.onclick = () => selectAnswerMC(index, btn);
