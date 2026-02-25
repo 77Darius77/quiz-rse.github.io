@@ -689,9 +689,9 @@
 
         function showResults() {
             endTime = Date.now(); // Arrêt du chronomètre
-            let totalSeconds = Math.floor((endTime - startTime) / 1000);
+            let totalSeconds = (endTime - startTime) / 1000;
             let minutes = Math.floor(totalSeconds / 60);
-            let seconds = totalSeconds % 60;
+            let seconds = (totalSeconds % 60).toFixed(1);
             participationTime = `${minutes}m ${seconds}s`;
 
             switchView(quizScreen, resultsScreen);
