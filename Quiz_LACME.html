@@ -169,14 +169,16 @@
     </style>
 </head>
 
-<body class="bg-animated flex flex-col min-h-screen relative overflow-x-hidden text-gray-800">
+<body class="bg-animated flex flex-col min-h-screen w-full relative overflow-x-hidden text-gray-800">
 
-    <!-- Formes décoratives en fond -->
-    <div
-        class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse-slow">
+    <!-- Formes décoratives en fond isolées pour éviter les bugs de scroll -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+        <div
+            class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse-slow">
+        </div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[30rem] h-[30rem] bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse-slow"
+            style="animation-delay: 1.5s;"></div>
     </div>
-    <div class="absolute bottom-[-10%] right-[-10%] w-[30rem] h-[30rem] bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse-slow"
-        style="animation-delay: 1.5s;"></div>
 
     <main class="glass-panel w-full relative z-10 flex flex-col border-none shadow-none rounded-none min-h-screen"
         aria-live="polite">
