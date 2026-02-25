@@ -5,181 +5,419 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz LACMÉ: Prêts pour la transition ?</title>
-    <!-- Chargement de Tailwind CSS -->
+    <!-- Chargement de Tailwind CSS via script -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chargement de la police Inter -->
+    <!-- Configuration Tailwind avancée -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        lacmeBlue: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        },
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-up': 'slideUp 0.6s ease-out forwards',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Chargement des polices Google -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Librairie Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
     <style>
-        /* Définition de la police Inter comme police par défaut */
         body {
             font-family: 'Inter', sans-serif;
         }
 
-        /* Style pour les options cochées (cases à cocher) */
+        h1,
+        h2,
+        h3 {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Glassmorphism Classes */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+        }
+
+        /* Option Styling avec Micro-interactions */
+        .quiz-option {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quiz-option::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.8), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.5s;
+        }
+
+        .quiz-option:hover:not(:disabled)::after {
+            transform: translateX(100%);
+        }
+
+        .quiz-option:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.15);
+            border-color: #93c5fd;
+            background-color: #f8fafc;
+        }
+
         .option-selected {
-            background-color: #DBEAFE !important;
-            /* bg-blue-100 */
-            border-color: #3B82F6 !important;
-            /* border-blue-500 */
+            background-color: #eff6ff !important;
+            border-color: #3b82f6 !important;
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.2);
+            transform: translateY(-3px);
+            font-weight: 600;
+        }
+
+        .option-correct {
+            border-color: #22c55e !important;
+            background-color: #f0fdf4 !important;
+            color: #14532d !important;
+        }
+
+        .option-incorrect {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
+            color: #7f1d1d !important;
+        }
+
+        /* Background dynamique premium */
+        .bg-animated {
+            background: linear-gradient(-45deg, #eef2f6, #dbeafe, #bae6fd, #e0e7ff);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Focus rings pour l'accessibilité */
+        .modern-focus:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3);
+            border-color: #3b82f6;
+        }
+
+        /* Transitions de vue */
+        .view-transition {
+            transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+        }
+
+        .view-hidden {
+            opacity: 0;
+            transform: scale(0.98);
+            pointer-events: none;
+            position: absolute;
+            visibility: hidden;
+        }
+
+        .view-visible {
+            opacity: 1;
+            transform: scale(1);
+            position: relative;
+            visibility: visible;
         }
     </style>
 </head>
 
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+<body
+    class="bg-animated flex items-center justify-center min-h-screen p-4 sm:p-8 relative overflow-hidden text-gray-800">
 
-    <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden">
+    <!-- Formes décoratives en fond -->
+    <div
+        class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse-slow">
+    </div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[30rem] h-[30rem] bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse-slow"
+        style="animation-delay: 1.5s;"></div>
+
+    <main class="glass-panel w-full max-w-3xl rounded-[2rem] relative z-10 overflow-hidden" aria-live="polite">
 
         <!-- Modale Email Existant -->
         <div id="email-modal"
-            class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
-                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
-                    <svg class="h-10 w-10 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity">
+            <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center animate-slide-up">
+                <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-red-50 mb-6">
+                    <svg class="h-10 w-10 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-4">Adresse déjà utilisée</h3>
-                <p class="text-gray-600 mb-8">Désolé, mais cette adresse a déjà été utilisée pour participer au quiz.
-                </p>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2 font-display">Adresse déjà utilisée</h3>
+                <p class="text-gray-600 mb-8 leading-relaxed">Désolé, mais cette adresse email a déjà été utilisée pour
+                    participer à ce quiz.</p>
                 <button onclick="closeApp()"
-                    class="w-full bg-gray-800 text-white font-bold py-3 px-4 rounded-lg text-lg hover:bg-gray-900 transition-all shadow-lg focus:outline-none focus:ring-4 focus:ring-gray-300">
-                    Au revoir
+                    class="w-full bg-slate-800 text-white font-semibold py-3.5 px-6 rounded-xl text-lg hover:bg-slate-900 transition-all shadow-lg hover:shadow-xl modern-focus">
+                    Fermer
                 </button>
             </div>
         </div>
 
-        <!-- Écran d'Introduction -->
-        <div id="intro-screen" class="p-8 sm:p-12 text-center">
-            <!-- Logo LACMÉ -->
-            <img src="https://cheval-partenaire.fr/wp-content/uploads/2017/11/lacme_logo-1024x153.png" alt="Logo LACMÉ"
-                class="mx-auto mb-6 max-h-20 sm:max-h-24 object-contain">
+        <!-- Les différentes Vues -->
+        <div class="relative min-h-[500px]">
 
-            <h1 class="text-3xl sm:text-4xl font-bold text-blue-800 mb-4">Quiz LACMÉ: Prêts pour la transition ?</h1>
-            <p class="text-lg text-gray-700 mb-4">
-                Bienvenue à vous cher collaborateur de LACMÉ ! 👋
-            </p>
-            <p class="text-lg text-gray-700 mb-6">
-                Ce quiz ludique est une excellente occasion de tester vos connaissances sur les enjeux
-                environnementaux et de découvrir les **actions concrètes** réalisées par notre entreprise depuis 2024.
-            </p>
-            <p class="text-base text-gray-600 mb-6 font-medium">
-                Attention : pour certaines questions, plusieurs réponses peuvent être exactes. Cochez-les toutes pour
-                marquer plus de points ! 😉
-            </p>
+            <!-- Écran d'Introduction -->
+            <section id="intro-screen" class="p-8 sm:p-14 text-center view-transition view-visible w-full">
+                <!-- Logo LACMÉ -->
+                <div class="inline-block p-4 bg-white/50 rounded-2xl mb-8 shadow-sm border border-white/60">
+                    <img src="https://cheval-partenaire.fr/wp-content/uploads/2017/11/lacme_logo-1024x153.png"
+                        alt="Logo LACMÉ" class="mx-auto max-h-16 sm:max-h-20 object-contain">
+                </div>
 
-            <!-- Formulaire d'Email -->
-            <form id="email-form" class="mt-8 text-left max-w-md mx-auto">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label for="prenom" class="block text-sm font-medium text-gray-700 mb-2">Prénom :</label>
-                        <input type="text" id="prenom-input" name="prenom"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Votre prénom" required>
+                <h1 class="text-3xl sm:text-5xl font-bold text-lacmeBlue-800 mb-6 tracking-tight animate-slide-up">Prêts
+                    pour la transition ?</h1>
+                <p class="text-xl text-slate-700 mb-4 font-medium animate-slide-up" style="animation-delay: 0.1s;">
+                    Bienvenue cher collaborateur de LACMÉ ! 👋
+                </p>
+                <div class="text-base text-slate-600 mb-8 space-y-4 animate-slide-up leading-relaxed"
+                    style="animation-delay: 0.2s;">
+                    <p>Ce quiz ludique est l'occasion parfaite de tester vos connaissances sur les enjeux
+                        environnementaux et de découvrir les <strong>actions concrètes</strong> de notre entreprise.</p>
+                    <p
+                        class="inline-block px-4 py-2 bg-lacmeBlue-50 text-lacmeBlue-800 rounded-lg text-sm font-semibold border border-lacmeBlue-100 shadow-sm">
+                        💡 Astuce : Plusieurs réponses peuvent parfois être justes. Cochez-les toutes !
+                    </p>
+                </div>
+
+                <!-- Formulaire d'Email -->
+                <form id="email-form" class="mt-8 text-left max-w-md mx-auto animate-slide-up"
+                    style="animation-delay: 0.3s;">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+                        <div>
+                            <label for="prenom-input"
+                                class="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">Prénom</label>
+                            <input type="text" id="prenom-input" name="prenom"
+                                class="w-full px-4 py-3 bg-white/80 border border-slate-200 rounded-xl shadow-sm modern-focus transition-colors"
+                                placeholder="Votre prénom" required>
+                        </div>
+                        <div>
+                            <label for="nom-input"
+                                class="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">Nom</label>
+                            <input type="text" id="nom-input" name="nom"
+                                class="w-full px-4 py-3 bg-white/80 border border-slate-200 rounded-xl shadow-sm modern-focus transition-colors"
+                                placeholder="Votre nom" required>
+                        </div>
                     </div>
-                    <div>
-                        <label for="nom" class="block text-sm font-medium text-gray-700 mb-2">Nom :</label>
-                        <input type="text" id="nom-input" name="nom"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Votre nom" required>
+
+                    <div class="mb-5">
+                        <label for="email-input" class="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">Email
+                            professionnel</label>
+                        <input type="email" id="email-input" name="email"
+                            class="w-full px-4 py-3 bg-white/80 border border-slate-200 rounded-xl shadow-sm modern-focus transition-colors"
+                            placeholder="prenom.nom@lacme.com" required>
+                    </div>
+
+                    <p id="email-error" class="text-red-500 text-sm mt-3 hidden flex items-center font-medium">
+                        <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Veuillez remplir tous les champs correctement.
+                    </p>
+
+                    <button id="start-btn" type="submit"
+                        class="group relative w-full mt-6 bg-gradient-to-r from-lacmeBlue-600 to-lacmeBlue-500 text-white font-bold py-3.5 px-8 rounded-xl text-lg transition-all shadow-lg hover:shadow-lacmeBlue-500/30 hover:-translate-y-0.5 modern-focus overflow-hidden">
+                        <span class="relative z-10 flex items-center justify-center">
+                            Lancer le défi
+                            <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                            </svg>
+                        </span>
+                        <div
+                            class="absolute inset-0 h-full w-full bg-gradient-to-r from-lacmeBlue-700 to-lacmeBlue-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
+                    </button>
+                </form>
+            </section>
+
+            <!-- Écran du Quiz -->
+            <section id="quiz-screen" class="p-8 sm:p-14 view-transition view-hidden w-full absolute top-0 left-0">
+                <!-- En-tête Quiz: Progression & Score -->
+                <div class="mb-8 bg-white/40 p-4 rounded-2xl border border-white/50 shadow-sm backdrop-blur-sm">
+                    <div class="flex justify-between items-end mb-3">
+                        <div>
+                            <span
+                                class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1 block">Progression</span>
+                            <span id="question-counter" class="text-lg font-bold text-lacmeBlue-700 font-display">1 /
+                                10</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1 block">Score
+                                actuel</span>
+                            <span id="current-score"
+                                class="text-lg font-bold text-slate-800 font-display bg-white px-3 py-1 rounded-lg shadow-sm border border-slate-100">0
+                                pts</span>
+                        </div>
+                    </div>
+                    <div class="w-full bg-slate-200/60 rounded-full h-3 overflow-hidden shadow-inner">
+                        <div id="progress-bar"
+                            class="bg-gradient-to-r from-lacmeBlue-400 to-lacmeBlue-600 h-full rounded-full transition-all duration-500 ease-out relative"
+                            style="width: 10%">
+                            <div class="absolute inset-0 bg-white/20 w-full h-full"
+                                style="background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent); background-size: 1rem 1rem;">
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="mt-4">
-                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email :</label>
-                    <input type="email" id="email-input" name="email"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="votre.email@lacme.com" required>
+                <!-- Contenu de la question -->
+                <div class="mb-8 min-h-[120px] animate-fade-in relative">
+                    <div id="multi-select-hint"
+                        class="absolute -top-3 left-0 bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full shadow-sm border border-amber-200 hidden flex items-center transform -translate-y-full">
+                        <svg class="w-3.5 h-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Plusieurs réponses possibles !
+                    </div>
+                    <h2 id="question-text"
+                        class="text-2xl sm:text-3xl font-bold text-slate-800 leading-snug font-display mt-4">Chargement
+                        de la question...</h2>
                 </div>
 
-                <p id="email-error" class="text-red-600 text-sm mt-2 hidden">Veuillez remplir tous les champs (email
-                    valide).</p>
+                <!-- Options de réponse -->
+                <div id="options-container" class="grid grid-cols-1 gap-4">
+                    <!-- Les options seront injectées ici par JS -->
+                </div>
 
-                <button id="start-btn" type="submit"
-                    class="w-full mt-6 bg-blue-600 text-white font-bold py-3 px-12 rounded-lg text-lg hover:bg-blue-700 transition-all shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-300">
-                    Lançons le défi !
+                <!-- Bouton de validation (pour les cb) -->
+                <button id="validate-btn"
+                    class="hidden w-full mt-8 bg-slate-800 text-white font-bold py-3.5 px-8 rounded-xl text-lg hover:bg-slate-900 transition-all shadow-lg hover:shadow-xl modern-focus -translate-y-1">
+                    Valider ma sélection
                 </button>
-            </form>
 
-        </div>
-
-        <!-- Écran du Quiz -->
-        <div id="quiz-screen" class="hidden p-8 sm:p-12">
-            <!-- Barre de progression -->
-            <div class="mb-6">
-                <div class="flex justify-between items-center mb-2">
-                    <span id="question-counter" class="text-sm font-medium text-blue-700">Question 1 / 10</span>
-                    <span id="current-score" class="text-sm font-medium text-gray-600">Score: 0</span>
-                </div>
-                <div class="w-full bg-gray-200 rounded-full h-2.5">
-                    <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
-                        style="width: 10%"></div>
-                </div>
-            </div>
-
-            <!-- Contenu de la question -->
-            <div class="mb-4 min-h-[100px]">
-                <p id="question-text" class="text-xl sm:text-2xl font-semibold text-gray-900">Chargement de la
-                    question...</p>
-                <p id="multi-select-hint" class="text-sm text-gray-500 italic mt-2 hidden">Plusieurs réponses sont
-                    possibles !</p>
-            </div>
-
-            <!-- Options de réponse -->
-            <div id="options-container" class="grid grid-cols-1 gap-4">
-                <!-- Les options seront injectées ici par JS -->
-            </div>
-
-            <!-- Bouton de validation (pour les cases à cocher) --><button id="validate-btn"
-                class="hidden w-full mt-6 bg-green-600 text-white font-bold py-3 px-8 rounded-lg text-lg hover:bg-green-700 transition-all shadow-lg focus:outline-none focus:ring-4 focus:ring-green-300">
-                Valider mes réponses
-            </button>
-
-            <!-- Feedback -->
-            <div id="feedback-container" class="hidden mt-6 p-5 rounded-lg">
-                <div class="flex items-start">
-                    <div id="feedback-icon" class="flex-shrink-0">
-                        <!-- SVG (check ou X) injecté par JS -->
-                    </div>
-                    <div class="ml-4">
-                        <h3 id="feedback-title" class="text-lg font-bold"></h3>
-                        <p id="feedback-text" class="mt-2 text-base"></p>
-                        <button id="next-btn"
-                            class="mt-4 bg-gray-800 text-white font-medium py-2 px-6 rounded-lg hover:bg-gray-900 transition-all focus:outline-none focus:ring-4 focus:ring-gray-300">
-                            Question suivante
-                        </button>
+                <!-- Feedback -->
+                <div id="feedback-container"
+                    class="hidden mt-8 p-6 rounded-2xl border shadow-sm animate-slide-up bg-white/90 backdrop-blur-md">
+                    <div class="flex items-start sm:items-center flex-col sm:flex-row">
+                        <div id="feedback-icon" class="flex-shrink-0 mb-4 sm:mb-0 sm:mr-5">
+                            <!-- SVG injecté -->
+                        </div>
+                        <div class="flex-grow">
+                            <h3 id="feedback-title" class="text-xl font-bold font-display mb-1"></h3>
+                            <p id="feedback-text" class="text-slate-700 leading-relaxed"></p>
+                        </div>
+                        <div class="sm:ml-6 mt-5 sm:mt-0 w-full sm:w-auto flex-shrink-0">
+                            <button id="next-btn"
+                                class="w-full sm:w-auto bg-slate-800 text-white font-semibold py-3 px-6 rounded-xl hover:bg-slate-900 transition-all modern-focus shadow-md flex items-center justify-center">
+                                Continuer
+                                <svg class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </section>
+
+            <!-- Écran des Résultats -->
+            <section id="results-screen"
+                class="p-8 sm:p-14 text-center view-transition view-hidden w-full absolute top-0 left-0">
+                <div
+                    class="inline-flex items-center justify-center p-4 bg-lacmeBlue-50 rounded-full mb-6 text-lacmeBlue-600 animate-bounce-subtle">
+                    <svg class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+
+                <h1 class="text-4xl sm:text-5xl font-bold text-slate-800 mb-2 font-display">Quiz terminé !</h1>
+                <p class="text-lg text-slate-500 mb-8 font-medium">Bilan de vos connaissances environnementales</p>
+
+                <div
+                    class="relative max-w-sm mx-auto bg-white/60 backdrop-blur rounded-[2rem] p-8 shadow-inner border border-white/50 mb-8">
+                    <div class="absolute inset-0 bg-gradient-to-br from-lacmeBlue-100/50 to-transparent rounded-[2rem]">
+                    </div>
+                    <div class="relative flex items-baseline justify-center">
+                        <span id="final-score"
+                            class="text-8xl font-black text-lacmeBlue-600 font-display tracking-tighter">0</span>
+                        <span class="text-3xl font-bold text-slate-400 ml-2">/ 10</span>
+                    </div>
+                </div>
+
+                <div class="bg-white/80 rounded-2xl p-6 shadow-sm border border-slate-100 mb-8 max-w-xl mx-auto">
+                    <p id="final-message" class="text-xl text-slate-700 font-medium leading-relaxed">...</p>
+                </div>
+
+                <div class="flex flex-col items-center justify-center">
+                    <!-- Statut d'envoi -->
+                    <div id="submit-status-container"
+                        class="flex items-center space-x-2 mb-8 bg-slate-50 px-4 py-2 rounded-full border border-slate-200">
+                        <svg class="animate-spin h-4 w-4 text-lacmeBlue-500" xmlns="http://www.w3.org/2000/svg"
+                            fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                            </circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg>
+                        <span id="submit-status" class="text-sm font-medium text-slate-600">Enregistrement de votre
+                            score...</span>
+                    </div>
+
+                    <button id="quit-btn" onclick="closeApp()"
+                        class="bg-slate-800 text-white font-bold py-3.5 px-10 rounded-xl text-lg hover:bg-slate-900 transition-all shadow-lg hover:shadow-xl modern-focus">
+                        Fermer la page
+                    </button>
+                </div>
+            </section>
         </div>
 
-        <!-- Écran des Résultats -->
-        <div id="results-screen" class="hidden p-8 sm:p-12 text-center">
-            <h1 class="text-3xl sm:text-4xl font-bold text-blue-800 mb-4">Quiz terminé !</h1>
-            <p class="text-lg text-gray-700 mb-6">Votre score final est de :</p>
-            <div class="my-8">
-                <span id="final-score" class="text-7xl font-bold text-blue-600">0</span>
-                <span class="text-3xl font-semibold text-gray-500">/ 10</span>
-            </div>
-            <p id="final-message" class="text-lg text-gray-800 mb-10 px-4">Message de félicitations...</p>
-
-            <p class="text-base text-gray-600 mb-2">
-                Merci pour votre participation ! Chaque question est une étape de plus vers une entreprise plus
-                responsable.
-            </p>
-
-            <!-- Statut de l'enregistrement -->
-            <p id="submit-status" class="text-sm text-gray-500 mb-8 italic">Enregistrement de votre score...</p>
-
-            <button id="quit-btn" onclick="closeApp()"
-                class="w-full sm:w-auto bg-gray-800 text-white font-bold py-3 px-12 rounded-lg text-lg hover:bg-gray-900 transition-all shadow-lg focus:outline-none focus:ring-4 focus:ring-gray-300">
-                Au revoir
-            </button>
-        </div>
-
-    </div>
+    </main>
 
     <script>
         // --- IMPORTANT ---
@@ -187,132 +425,18 @@
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxg0xpJMksniiklKHptUwvWewF2EXK8ApZ2-F-7LgTd4y-HfBlMlfphEtNwJJDeu90VmA/exec';
         // -----------------
 
-
         // --- Données du Quiz (Mises à jour pour LACMÉ 2024) ---
         const quizData = [
-            {
-                // Q1: Généralité pour commencer
-                question: "Au sein de notre PME, qui est (ou devrait être) impliqué dans la transition écologique ?",
-                type: "mc",
-                options: [
-                    "Uniquement la Direction, qui fixe la stratégie.",
-                    "Seulement le responsable HSE / RSE.",
-                    "Absolument tout le monde, de l'atelier au bureau."
-                ],
-                correct: [2],
-                feedback: "C'est l'affaire de tous ! La transition écologique mobilise une grande diversité d'acteurs. Dans l'entreprise, chaque poste a un rôle à jouer, des achats à la production, en passant par l'administratif."
-            },
-            {
-                // Q2: LACMÉ Spécifique - Surface Entrepôt
-                question: "Le nouvel entrepôt logistique de LACMÉ est une pièce maîtresse de notre stratégie. Quelle est sa surface totale ?",
-                type: "mc",
-                options: [
-                    "2 400 m²",
-                    "6 000 m²",
-                    "10 000 m²"
-                ],
-                correct: [1],
-                feedback: "Exactement ! Ce bâtiment de 6 000 m² n'est pas qu'une zone de stockage : il a été conçu pour être autonome en énergie grâce à sa toiture solaire."
-            },
-            {
-                // Q3: LACMÉ Spécifique - Panneaux Solaires
-                question: "Pour assurer l'autonomie énergétique de ce nouvel entrepôt, combien de panneaux photovoltaïques ont été installés sur le toit ?",
-                type: "mc",
-                options: [
-                    "Environ 500 panneaux",
-                    "1 084 panneaux",
-                    "2 400 panneaux"
-                ],
-                correct: [1],
-                feedback: "C'est précis ! 1 084 panneaux couvrent 2 400 m² de toiture. Cet investissement doit nous permettre de couvrir près de 50% des besoins en électricité de tout le site d'ici 2026."
-            },
-            {
-                // Q4: Généralité RSE
-                question: "Pourquoi la lutte contre le réchauffement climatique doit-elle se faire à la fois localement (chez nous) et globalement ?",
-                type: "cb",
-                options: [
-                    "Parce que le climat est un \"bien commun\" mondial.",
-                    "Parce que les actions locales (ex: isoler un bâtiment) et globales sont complémentaires.",
-                    "Parce que l'échelle locale est la seule qui compte vraiment.",
-                    "Parce que l'échelle globale est trop lente et inefficace."
-                ],
-                correct: [0, 1],
-                feedback: "Tout à fait ! Le climat est un bien commun qui ne connaît pas les frontières. Les actions locales (isolation, tri, panneaux solaires) sont essentielles, mais elles doivent être coordonnées pour être pleinement efficaces."
-            },
-            {
-                // Q5: LACMÉ Spécifique - Déchets (Nuance 85% vs 58%)
-                question: "Si 85% de nos déchets sont 'valorisés' (y compris énergétiquement), quelle proportion est véritablement recyclée pour redevenir de la matière première ou surcyclée ?",
-                type: "mc",
-                options: [
-                    "30 %",
-                    "58 %",
-                    "85 %"
-                ],
-                correct: [1],
-                feedback: "Exact ! Beaucoup confondent valorisation globale et recyclage. Chez LACMÉ, 58% de nos déchets connaissent une vraie seconde vie matérielle."
-            },
-            {
-                // Q6: LACMÉ Spécifique - Santé / CMR
-                question: "Côté santé et sécurité au travail, quelle avancée majeure a été réalisée dans l'atelier résinage en 2024 ?",
-                type: "mc",
-                options: [
-                    "L'élimination totale des substances CMR (Cancérogènes, Mutagènes, Reprotoxiques).",
-                    "L'installation de la climatisation intégrale.",
-                    "La mise en place du télétravail pour les opérateurs."
-                ],
-                correct: [0],
-                feedback: "C'est un engagement fort du rapport 2024 ! Le nouveau process supprime les CMR et réduit drastiquement les COV (Composés Organiques Volatils), garantissant plus de sécurité pour nos collaborateurs."
-            },
-            {
-                // Q7: Généralité RSE - Petits gestes
-                question: "Les \"petits gestes\" individuels (trier ses déchets, éteindre sa lumière) sont-ils suffisants pour relever le défi climatique ?",
-                type: "mc",
-                options: [
-                    "Oui, si tout le monde s'y met, cela suffira.",
-                    "Non, ils sont inutiles.",
-                    "Non, ils sont INDISPENSABLES mais pas suffisants. Ils doivent être complétés par des actions collectives et industrielles."
-                ],
-                correct: [2],
-                feedback: "C'est la réponse la plus juste. Les gestes individuels créent une culture d'engagement, mais la transformation écologique nécessite aussi des investissements lourds comme ceux réalisés par LACMÉ (bâtiment, process)."
-            },
-            {
-                // Q8: Contextuel PME Sarthe
-                question: "En tant que PME en Sarthe, quelle action concrète a un impact significatif ?",
-                type: "mc",
-                options: [
-                    "Remplacer les bouteilles plastiques.",
-                    "Optimiser les tournées de livraison.",
-                    "Trier le papier et les déchets industriels.",
-                    "Toutes ces actions sont utiles et leur impact combiné est significatif."
-                ],
-                correct: [3],
-                feedback: "Bravo ! C'est la somme de toutes ces actions qui fait la différence. L'optimisation logistique a un gros impact CO2, et la gestion des déchets est cruciale."
-            },
-            {
-                // Q9: Question bonus sur la mobilité (Mentionnée dans le PDF)
-                question: "En 2024, LACMÉ a intégré un véhicule utilitaire 100% électrique pour sa logistique interne. Quel est le bénéfice immédiat ?",
-                type: "cb",
-                options: [
-                    "Réduction des émissions de CO2 sur le site.",
-                    "Suppression de la pollution sonore.",
-                    "Cela permet de rouler plus vite dans les allées.",
-                    "Élimination des gaz d'échappement dans les zones de travail."
-                ],
-                correct: [0, 1, 3],
-                feedback: "Exactement ! Ce remplacement supprime les émissions directes et le bruit, améliorant à la fois le bilan carbone et le confort de travail sur le site."
-            },
-            {
-                // Q10: Conclusion
-                question: "Concrètement, la transition écologique pour une PME comme LACMÉ, c'est surtout...",
-                type: "mc",
-                options: [
-                    "Une source de coûts et de contraintes supplémentaires.",
-                    "Une contrainte réglementaire, mais aussi un levier d'innovation, d'économies et d'attractivité.",
-                    "Seulement une question d'image de marque."
-                ],
-                correct: [1],
-                feedback: "C'est la vision moderne ! Si la transition demande des efforts, elle est aussi un formidable moteur pour innover (nouvel entrepôt), faire des économies (énergie) et protéger nos équipes (santé)."
-            }
+            { question: "Au sein de notre PME, qui est (ou devrait être) impliqué dans la transition écologique ?", type: "mc", options: ["Uniquement la Direction, qui fixe la stratégie.", "Seulement le responsable HSE / RSE.", "Absolument tout le monde, de l'atelier au bureau."], correct: [2], feedback: "C'est l'affaire de tous ! La transition écologique mobilise une grande diversité d'acteurs. Dans l'entreprise, chaque poste a un rôle à jouer, des achats à la production, en passant par l'administratif." },
+            { question: "Le nouvel entrepôt logistique de LACMÉ est une pièce maîtresse de notre stratégie. Quelle est sa surface totale ?", type: "mc", options: ["2 400 m²", "6 000 m²", "10 000 m²"], correct: [1], feedback: "Exactement ! Ce bâtiment de 6 000 m² n'est pas qu'une zone de stockage : il a été conçu pour être autonome en énergie grâce à sa toiture solaire." },
+            { question: "Pour assurer l'autonomie énergétique de ce nouvel entrepôt, combien de panneaux photovoltaïques ont été installés sur le toit ?", type: "mc", options: ["Environ 500 panneaux", "1 084 panneaux", "2 400 panneaux"], correct: [1], feedback: "C'est précis ! 1 084 panneaux couvrent 2 400 m² de toiture. Cet investissement doit nous permettre de couvrir près de 50% des besoins en électricité de tout le site d'ici 2026." },
+            { question: "Pourquoi la lutte contre le réchauffement climatique doit-elle se faire à la fois localement (chez nous) et globalement ?", type: "cb", options: ["Parce que le climat est un bien commun mondial.", "Parce que les actions locales et globales sont complémentaires.", "Parce que l'échelle locale est la seule qui compte vraiment.", "Parce que l'échelle globale est trop lente et inefficace."], correct: [0, 1], feedback: "Tout à fait ! Le climat est un bien commun qui ne connaît pas les frontières. Les actions locales (isolation, tri, solaire) sont essentielles, mais elles doivent être coordonnées." },
+            { question: "Si 85% de nos déchets sont 'valorisés', quelle proportion est véritablement recyclée pour redevenir de la matière première ?", type: "mc", options: ["30 %", "58 %", "85 %"], correct: [1], feedback: "Exact ! Beaucoup confondent valorisation globale et recyclage. Chez LACMÉ, 58% de nos déchets connaissent une vraie seconde vie matérielle." },
+            { question: "Côté santé et sécurité au travail, quelle avancée majeure a été réalisée dans l'atelier résinage en 2024 ?", type: "mc", options: ["L'élimination totale des substances CMR.", "L'installation de la climatisation intégrale.", "La mise en place du télétravail pour les opérateurs."], correct: [0], feedback: "Un engagement fort ! Le nouveau process supprime les CMR (Cancérogènes, Mutagènes, Reprotoxiques) et réduit drastiquement les COV, garantissant plus de sécurité." },
+            { question: "Les \"petits gestes\" individuels sont-ils suffisants pour relever le défi climatique ?", type: "mc", options: ["Oui, si tout le monde s'y met, cela suffira.", "Non, ils sont inutiles.", "Non, ils sont indispensables mais pas suffisants. Ils doivent être complétés par l'industrie."], correct: [2], feedback: "C'est juste. Les gestes créent une culture d'engagement, mais la transformation nécessite aussi des investissements lourds comme ceux de LACMÉ." },
+            { question: "En tant que PME en Sarthe, quelle action concrète a un impact significatif ?", type: "mc", options: ["Remplacer les bouteilles plastiques.", "Optimiser les tournées de livraison.", "Trier le papier et les déchets industriels.", "Toutes ces actions (leur impact combiné est significatif)."], correct: [3], feedback: "Bravo ! C'est la somme de toutes ces actions qui fait la différence sur le terrain." },
+            { question: "En 2024, LACMÉ a intégré un véhicule utilitaire 100% électrique sur site. Quel est le bénéfice immédiat ?", type: "cb", options: ["Réduction des émissions de CO2 sur le site.", "Suppression de la pollution sonore.", "Cela permet de rouler plus vite dans les allées.", "Élimination des gaz d'échappement dans les zones de travail."], correct: [0, 1, 3], feedback: "Exactement ! Ce remplacement supprime les émissions directes et le bruit, améliorant le bilan carbone et le confort de travail." },
+            { question: "Concrètement, la transition écologique pour une PME comme LACMÉ, c'est surtout...", type: "mc", options: ["Une source de coûts et de contraintes supplémentaires.", "Un levier d'innovation, d'économies et d'attractivité.", "Seulement une question d'image de marque."], correct: [1], feedback: "La vision moderne ! Si la transition demande des efforts, elle est aussi un moteur pour innover (nouvel entrepôt), faire des économies (énergie) et protéger." }
         ];
 
         // --- Éléments du DOM ---
@@ -326,9 +450,8 @@
         const nomInput = document.getElementById('nom-input');
         const prenomInput = document.getElementById('prenom-input');
 
-        const quitBtn = document.getElementById('quit-btn');
-        const nextBtn = document.getElementById('next-btn');
         const validateBtn = document.getElementById('validate-btn');
+        const nextBtn = document.getElementById('next-btn');
 
         const questionCounter = document.getElementById('question-counter');
         const currentScoreEl = document.getElementById('current-score');
@@ -342,29 +465,39 @@
         const feedbackTitle = document.getElementById('feedback-title');
         const feedbackText = document.getElementById('feedback-text');
 
-        const finalScore = document.getElementById('final-score');
-        const finalMessage = document.getElementById('final-message');
-        const submitStatus = document.getElementById('submit-status');
-
-        // Icônes pour le feedback
+        // Icônes Premium Themed
         const checkIcon = `
-            <svg class="h-8 w-8 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-            </svg>`;
-        const crossIcon = `
-            <svg class="h-8 w-8 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-            </svg>`;
+            <div class="h-14 w-14 bg-green-100 rounded-full flex items-center justify-center shadow-inner">
+                <svg class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+            </div>`;
 
-        // --- État du Quiz ---
+        const crossIcon = `
+             <div class="h-14 w-14 bg-red-100 rounded-full flex items-center justify-center shadow-inner">
+                <svg class="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </div>`;
+
+        // --- État ---
         let currentQuestionIndex = 0;
         let score = 0;
-        let userSelection = []; // Pour les questions à choix multiples (cb)
-        let userEmail = "";
-        let userNom = "";
-        let userPrenom = "";
+        let userSelection = [];
+        let userEmail = "", userNom = "", userPrenom = "";
+        let startTime = null;
+        let endTime = null;
+        let participationTime = "";
 
-        // --- Fonctions ---
+        // Activer la transition de vue
+        function switchView(hideEl, showEl) {
+            hideEl.classList.remove('view-visible');
+            hideEl.classList.add('view-hidden');
+            setTimeout(() => {
+                showEl.classList.remove('view-hidden');
+                showEl.classList.add('view-visible');
+            }, 50); // Petit délai pour laisser le flow s'actualiser
+        }
 
         async function handleStartSubmit(event) {
             event.preventDefault();
@@ -372,16 +505,14 @@
             const nom = nomInput.value.trim();
             const prenom = prenomInput.value.trim();
 
-            if (email && email.includes('@') && nom && prenom) { // Validation simple
-                userEmail = email;
-                userNom = nom;
-                userPrenom = prenom;
+            if (email && email.includes('@') && nom && prenom) {
+                userEmail = email; userNom = nom; userPrenom = prenom;
                 emailError.classList.add('hidden');
 
-                // Vérification de l'email
                 const startBtn = document.getElementById('start-btn');
-                const originalText = startBtn.innerText;
-                startBtn.innerText = "Vérification...";
+                const btnTextEl = startBtn.querySelector('span');
+                const originalText = btnTextEl.innerHTML;
+                btnTextEl.innerHTML = `Vérification <svg class="animate-spin ml-2 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
                 startBtn.disabled = true;
 
                 const formData = new FormData();
@@ -389,194 +520,153 @@
                 formData.append('email', userEmail);
 
                 try {
-                    const response = await fetch(GOOGLE_SCRIPT_URL, {
-                        method: 'POST',
-                        body: formData
-                    });
-
+                    const response = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData });
                     const result = await response.json();
 
                     if (result.exists === true) {
-                        // Afficher la modale de refus
                         document.getElementById('email-modal').classList.remove('hidden');
                     } else {
                         startQuiz();
                     }
                 } catch (error) {
-                    console.error("Erreur de vérification", error);
-                    // Lançons le quiz par défaut si erreur de réseau (ou script pas encore à jour)
+                    console.error("Erreur, démarrage auto", error);
                     startQuiz();
                 } finally {
-                    startBtn.innerText = originalText;
+                    btnTextEl.innerHTML = originalText;
                     startBtn.disabled = false;
                 }
-
             } else {
-                emailError.innerText = "Veuillez remplir tous les champs (email valide).";
                 emailError.classList.remove('hidden');
             }
         }
 
-        function closeApp() {
-            // Essaie de fermer l'onglet
-            window.close();
-            // Fallback si le navigateur bloque window.close()
-            document.body.innerHTML = '<div class="flex items-center justify-center min-h-screen"><h1 class="text-2xl font-bold text-gray-800 text-center px-4">Merci de votre participation. Vous pouvez maintenant fermer cet onglet.</h1></div>';
-        }
+        function closeApp() { window.close(); document.body.innerHTML = '<div class="absolute inset-0 bg-white flex items-center justify-center p-6"><div class="glass-panel p-10 rounded-3xl text-center"><h1 class="text-3xl font-bold text-slate-800 font-display mb-4">Merci de votre participation !</h1><p class="text-slate-600">Vous pouvez fermer cet onglet.</p></div></div>'; }
 
         function startQuiz() {
-            currentQuestionIndex = 0;
-            score = 0;
-            userSelection = [];
-            introScreen.classList.add('hidden');
-            resultsScreen.classList.add('hidden');
-            quizScreen.classList.remove('hidden');
+            currentQuestionIndex = 0; score = 0; userSelection = [];
+            startTime = Date.now(); // Démarrage du chronomètre
+
+            // Mélange aléatoire des questions (Algorithme de Fisher-Yates)
+            for (let i = quizData.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [quizData[i], quizData[j]] = [quizData[j], quizData[i]];
+            }
+
+            switchView(introScreen, quizScreen);
             loadQuestion();
             updateScoreboard();
         }
 
         function loadQuestion() {
-            // Réinitialiser
             userSelection = [];
             feedbackContainer.classList.add('hidden');
             validateBtn.classList.add('hidden');
-            multiSelectHint.classList.add('hidden'); // Cacher l'indice par défaut
-            optionsContainer.innerHTML = ''; // Vider les options précédentes
+            multiSelectHint.classList.add('hidden');
+            optionsContainer.innerHTML = '';
+
+            // Animation reset
+            optionsContainer.classList.remove('animate-fade-in');
+            void optionsContainer.offsetWidth; // trigger reflow
+            optionsContainer.classList.add('animate-fade-in');
 
             const question = quizData[currentQuestionIndex];
             questionText.innerText = question.question;
+            questionCounter.innerText = `${currentQuestionIndex + 1} / ${quizData.length}`;
 
-            // Mise à jour de la progression
-            questionCounter.innerText = `Question ${currentQuestionIndex + 1} / ${quizData.length}`;
-            progressBar.style.width = `${((currentQuestionIndex + 1) / quizData.length) * 100}%`;
+            const progressPct = ((currentQuestionIndex) / quizData.length) * 100;
+            progressBar.style.width = `${progressPct}%`;
 
-            // Créer les boutons d'option
             question.options.forEach((option, index) => {
-                const optionBtn = document.createElement('button');
-                optionBtn.innerHTML = `<span class="font-medium">${option}</span>`;
-                optionBtn.className = "w-full p-4 rounded-lg border-2 border-gray-300 text-gray-800 text-left transition-all duration-150 hover:bg-blue-50 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300";
-                optionBtn.dataset.index = index;
+                const btn = document.createElement('button');
+                btn.innerHTML = `<span class="flex items-center"><span class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold mr-4 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">${String.fromCharCode(65 + index)}</span><span class="text-left font-medium leading-tight">${option}</span></span>`;
+                btn.className = "quiz-option group w-full p-4 rounded-xl border-2 border-slate-200 bg-white text-slate-700 text-left modern-focus shadow-sm";
+                btn.dataset.index = index;
 
-                if (question.type === 'mc') {
-                    optionBtn.onclick = () => selectAnswerMC(index, optionBtn);
-                } else { // type === 'cb'
-                    optionBtn.onclick = () => selectAnswerCB(index, optionBtn);
-                }
-                optionsContainer.appendChild(optionBtn);
+                if (question.type === 'mc') btn.onclick = () => selectAnswerMC(index, btn);
+                else btn.onclick = () => selectAnswerCB(index, btn);
+
+                optionsContainer.appendChild(btn);
             });
 
-            // Afficher le bouton Valider et l'indice pour les 'cb'
             if (question.type === 'cb') {
                 validateBtn.classList.remove('hidden');
                 multiSelectHint.classList.remove('hidden');
             }
         }
 
-        // Sélection pour Choix Unique (MC)
         function selectAnswerMC(index) {
             const question = quizData[currentQuestionIndex];
             const isCorrect = question.correct[0] === index;
+            if (isCorrect) { score++; updateScoreboard(); }
 
-            if (isCorrect) {
-                score++;
-                updateScoreboard();
-            }
-
-            // Désactiver tous les boutons
-            Array.from(optionsContainer.children).forEach(btn => {
-                btn.disabled = true;
-                btn.classList.remove('hover:bg-blue-50', 'hover:border-blue-400');
-            });
-
-            // Afficher le feedback
+            disableOptions();
             showFeedback(isCorrect, question.feedback);
-
-            // Colorer les réponses
-            styleOptions(isCorrect, index);
+            styleOptionsPostAnswer(isCorrect, index);
         }
 
-        // Sélection pour Choix Multiples (CB)
-        function selectAnswerCB(index, buttonEl) {
-            // Ajouter ou retirer l'index de la sélection
-            const selectionIndex = userSelection.indexOf(index);
-            if (selectionIndex > -1) {
-                userSelection.splice(selectionIndex, 1);
-                buttonEl.classList.remove('option-selected');
+        function selectAnswerCB(index, btnEl) {
+            const idx = userSelection.indexOf(index);
+            if (idx > -1) {
+                userSelection.splice(idx, 1);
+                btnEl.classList.remove('option-selected');
             } else {
                 userSelection.push(index);
-                buttonEl.classList.add('option-selected');
+                btnEl.classList.add('option-selected');
             }
         }
 
-        // Validation pour Choix Multiples (CB)
         function validateAnswersCB() {
             const question = quizData[currentQuestionIndex];
+            const isCorrect = JSON.stringify([...userSelection].sort()) === JSON.stringify([...question.correct].sort());
 
-            // Trier les deux tableaux pour les comparer
-            const sortedSelection = [...userSelection].sort((a, b) => a - b);
-            const sortedCorrect = [...question.correct].sort((a, b) => a - b);
+            if (isCorrect) { score++; updateScoreboard(); }
 
-            const isCorrect = JSON.stringify(sortedSelection) === JSON.stringify(sortedCorrect);
-
-            if (isCorrect) {
-                score++;
-                updateScoreboard();
-            }
-
-            // Désactiver tous les boutons
-            Array.from(optionsContainer.children).forEach(btn => {
-                btn.disabled = true;
-                btn.classList.remove('hover:bg-blue-50', 'hover:border-blue-400', 'option-selected');
-            });
-
-            // Afficher le feedback
+            disableOptions();
             showFeedback(isCorrect, question.feedback);
-
-            // Cacher le bouton Valider
             validateBtn.classList.add('hidden');
             multiSelectHint.classList.add('hidden');
-
-            // Colorer les réponses
-            styleOptions(isCorrect);
+            styleOptionsPostAnswer(isCorrect);
         }
 
-        // Logique de coloration (commune à MC et CB)
-        function styleOptions(isOverallCorrect, selectedIndex = -1) {
-            const question = quizData[currentQuestionIndex];
-            const allOptions = Array.from(optionsContainer.children);
+        function disableOptions() {
+            Array.from(optionsContainer.children).forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('cursor-default');
+            });
+        }
 
-            allOptions.forEach((btn, index) => {
+        function styleOptionsPostAnswer(isOverallCorrect, selectedIndex = -1) {
+            const question = quizData[currentQuestionIndex];
+            Array.from(optionsContainer.children).forEach((btn, index) => {
                 const isCorrectAnswer = question.correct.includes(index);
                 const isSelected = (question.type === 'mc') ? (index === selectedIndex) : userSelection.includes(index);
 
+                btn.classList.remove('hover:-translate-y-1', 'group'); // stop hover animations
+
                 if (isCorrectAnswer) {
-                    // Bonne réponse
-                    btn.className = "w-full p-4 rounded-lg border-2 border-green-500 bg-green-50 text-gray-900 text-left";
+                    btn.classList.add('option-correct');
                 } else if (isSelected && !isCorrectAnswer) {
-                    // Mauvaise réponse sélectionnée
-                    btn.className = "w-full p-4 rounded-lg border-2 border-red-500 bg-red-50 text-gray-900 text-left";
+                    btn.classList.add('option-incorrect');
                 } else {
-                    // Option non sélectionnée (et non correcte)
-                    btn.className = "w-full p-4 rounded-lg border-2 border-gray-300 text-gray-800 text-left opacity-70";
+                    btn.classList.add('opacity-50'); // Dim others
                 }
             });
         }
 
-        // Afficher le feedback
         function showFeedback(isCorrect, text) {
             feedbackContainer.classList.remove('hidden');
             feedbackText.innerText = text;
 
             if (isCorrect) {
-                feedbackContainer.className = "mt-6 p-5 rounded-lg bg-green-50";
+                feedbackContainer.className = "mt-8 p-6 rounded-2xl border border-green-200 animate-slide-up bg-green-50 backdrop-blur-md shadow-sm";
                 feedbackIcon.innerHTML = checkIcon;
                 feedbackTitle.innerText = "Bonne réponse !";
-                feedbackTitle.className = "text-lg font-bold text-green-800";
+                feedbackTitle.className = "text-xl font-bold font-display mb-1 text-green-800";
             } else {
-                feedbackContainer.className = "mt-6 p-5 rounded-lg bg-red-50";
+                feedbackContainer.className = "mt-8 p-6 rounded-2xl border border-red-200 animate-slide-up bg-red-50 backdrop-blur-md shadow-sm";
                 feedbackIcon.innerHTML = crossIcon;
                 feedbackTitle.innerText = "Oups ! Voici l'explication :";
-                feedbackTitle.className = "text-lg font-bold text-red-800";
+                feedbackTitle.className = "text-xl font-bold font-display mb-1 text-red-800";
             }
         }
 
@@ -585,72 +675,92 @@
             if (currentQuestionIndex < quizData.length) {
                 loadQuestion();
             } else {
-                showResults();
+                progressBar.style.width = `100%`; // Fin
+                setTimeout(showResults, 300);
             }
         }
 
         function showResults() {
-            quizScreen.classList.add('hidden');
-            resultsScreen.classList.remove('hidden');
+            endTime = Date.now(); // Arrêt du chronomètre
+            let totalSeconds = Math.floor((endTime - startTime) / 1000);
+            let minutes = Math.floor(totalSeconds / 60);
+            let seconds = totalSeconds % 60;
+            participationTime = `${minutes}m ${seconds}s`;
 
-            finalScore.innerText = score;
-            const percentage = Math.round((score / quizData.length) * 100);
+            switchView(quizScreen, resultsScreen);
 
-            let message = "";
-            if (percentage < 40) {
-                message = "C'est un bon début ! Le plus important est d'avoir participé et d'apprendre. Chaque petit pas compte !";
-            } else if (percentage < 80) {
-                message = "Super score ! Vous maîtrisez déjà très bien les bases et les actions de LACMÉ. Continuons ensemble !";
-            } else {
-                message = "Excellent ! Vous êtes un véritable expert de la stratégie RSE de LACMÉ !";
+            document.getElementById('final-score').innerText = score;
+            const pct = Math.round((score / quizData.length) * 100);
+            const msgEl = document.getElementById('final-message');
+
+            if (pct < 40) msgEl.innerText = "C'est un bon début ! L'important est d'avoir participé et d'apprendre. Chaque pas compte pour LACMÉ.";
+            else if (pct < 80) msgEl.innerText = "Super score ! Vous maîtrisez déjà très bien nos actions RSE. Continuons d'avancer ensemble !";
+            else {
+                msgEl.innerText = "Performance exceptionnelle ! Vous êtes un véritable ambassadeur de la transition écologique chez LACMÉ !";
+                triggerConfetti();
             }
-            finalMessage.innerText = message;
 
-            // Envoyer les données au Google Sheet
             submitToGoogleSheet();
         }
 
+        function triggerConfetti() {
+            const duration = 3 * 1000;
+            const end = Date.now() + duration;
+
+            (function frame() {
+                confetti({
+                    particleCount: 5, angle: 60, spread: 55, origin: { x: 0 },
+                    colors: ['#2563eb', '#3b82f6', '#60a5fa'] // Lacme Blue tones
+                });
+                confetti({
+                    particleCount: 5, angle: 120, spread: 55, origin: { x: 1 },
+                    colors: ['#22c55e', '#4ade80', '#10b981'] // Eco Green tones
+                });
+
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
+        }
+
         async function submitToGoogleSheet() {
-            if (GOOGLE_SCRIPT_URL === 'VOTRE_URL_APPS_SCRIPT_ICI' || GOOGLE_SCRIPT_URL === '') {
-                submitStatus.innerText = "Configuration Google Sheet manquante.";
-                submitStatus.className = "text-sm text-red-600 mb-8 font-medium";
-                console.error("Veuillez renseigner GOOGLE_SCRIPT_URL dans le script.");
+            const statusContainer = document.getElementById('submit-status-container');
+            const statusEl = document.getElementById('submit-status');
+            const spinnerEl = statusContainer.querySelector('svg');
+
+            if (GOOGLE_SCRIPT_URL.includes('VOTRE_URL') || !GOOGLE_SCRIPT_URL) {
+                spinnerEl.classList.add('hidden');
+                statusEl.innerText = "Mode démo : score non enregistré.";
                 return;
             }
 
-            const formData = new FormData();
-            formData.append('prenom', userPrenom);
-            formData.append('nom', userNom);
-            formData.append('email', userEmail);
-            formData.append('score', score);
+            const fd = new FormData();
+            fd.append('prenom', userPrenom); fd.append('nom', userNom);
+            fd.append('email', userEmail); fd.append('score', score);
+            fd.append('temps', participationTime); // Ajout du temps de participation
 
             try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    body: formData
-                });
-
+                const response = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: fd });
                 const result = await response.json();
 
+                spinnerEl.classList.add('hidden');
+                statusContainer.classList.remove('bg-slate-50', 'border-slate-200');
+
                 if (result.result === 'success') {
-                    submitStatus.innerText = "Votre score a bien été enregistré !";
-                    submitStatus.className = "text-sm text-green-600 mb-8 font-medium";
-                } else {
-                    throw new Error(result.message || 'Erreur inconnue');
-                }
+                    statusContainer.classList.add('bg-green-50', 'border-green-200', 'text-green-700');
+                    statusContainer.innerHTML = `<svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg><span class="text-sm font-bold">Score enregistré avec succès !</span>`;
+                } else throw new Error();
             } catch (error) {
-                console.error('Erreur lors de l-envoi au Google Sheet:', error);
-                submitStatus.innerText = "Erreur lors de l'enregistrement du score.";
-                submitStatus.className = "text-sm text-red-600 mb-8 font-medium";
+                spinnerEl.classList.add('hidden');
+                statusContainer.classList.replace('bg-slate-50', 'bg-red-50');
+                statusContainer.classList.replace('border-slate-200', 'border-red-200');
+                statusContainer.innerHTML = `<svg class="w-5 h-5 mr-2 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg><span class="text-sm font-bold text-red-700">Erreur réseau lors de l'enregistrement.</span>`;
             }
         }
 
-
         function updateScoreboard() {
-            currentScoreEl.innerText = `Score: ${score}`;
+            document.getElementById('current-score').innerText = `${score} pt${score > 1 ? 's' : ''}`;
         }
 
-        // --- Écouteurs des événements ---
+        // --- Écouteurs ---
         emailForm.addEventListener('submit', handleStartSubmit);
         nextBtn.addEventListener('click', nextQuestion);
         validateBtn.addEventListener('click', validateAnswersCB);
